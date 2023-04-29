@@ -118,7 +118,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 	case WM_KILLFOCUS:
 		kbd.ClearState();
 		break;
-	case WM_KEYDOWN:
+	//case WM_KEYDOWN:
 		// syskey commands need to be handled to track ALT key (VK_MENU) and F10
 	case WM_SYSKEYDOWN:
 		if (!(lParam & 0x40000000) || kbd.AutorepeatIsEnabled()) // filter autorepeat
@@ -177,7 +177,49 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 			mouse.OnWheelDown(pt.x, pt.y);
 		}
 		break;
+	}/*case WM_PAINT:
+		Update();
+		Render();
+		break;*/
+	case WM_KEYDOWN:
+	{
+		bool alt = (::GetAsyncKeyState(VK_MENU) & 0x8000) != 0;
+
+		switch (wParam)
+		{
+		case 'V':
+			//g_VSync = !g_VSync;
+			break;
+		case VK_ESCAPE:
+			::PostQuitMessage(0);
+			break;
+		case VK_RETURN:
+			//if (alt)
+			//{
+		case VK_F11:
+			//SetFullscreen(!g_Fullscreen);
+			//}
+			break;
+		}
 	}
+	break;
+	// The default window procedure will play a system notification sound 
+	// when pressing the Alt+Enter keyboard combination if this message is 
+	// not handled.
+	case WM_SYSCHAR:
+		break;
+	case WM_SIZE:
+	{
+		/*RECT clientRect = {};
+		::GetClientRect(g_hWnd, &clientRect);
+
+		int width = clientRect.right - clientRect.left;
+		int height = clientRect.bottom - clientRect.top;
+
+		Resize(width, height);*/
+	}
+	break;
+
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
@@ -262,7 +304,7 @@ Window::HrException::HrException(int line, const char* file, long exception, HRE
 
 const char* Window::HrException::what() const noexcept
 {
-	
+
 	std::ostringstream oss;
 	oss << GetType() << std::endl
 		<< "[Error Code] 0x" << std::hex << std::uppercase << GetErrorCode()

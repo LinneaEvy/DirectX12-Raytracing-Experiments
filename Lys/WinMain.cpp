@@ -2,6 +2,7 @@
 #include <tchar.h>
 #include <iostream>
 #include "D3D12.h"
+#include "Graphics.h"
 
 /*void D3D12::OnInit()
 {
@@ -48,16 +49,23 @@ int CALLBACK WinMain(
 		Window wnd(800, 300, L"Fenster in die welt des Chaos");
 		MSG msg;
 		BOOL gResult;
+		//look how.app does pass around the window
+		Graphics renderer(wnd.GetWInstance(), 800, 800, wnd.GetWName());
+		
 		
 		while ((gResult = GetMessage(&msg, nullptr, 0, 0)) > 0) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+			if (wnd.kbd.KeyIsPressed(WM_PAINT)) {
+				renderer.Update();
+				renderer.Render();
+			}
 			if (wnd.kbd.KeyIsPressed(VK_MENU))
 			{
 				MessageBox(nullptr, L"das Licht geht an", L"The alt key was pressed", MB_OK | MB_ICONEXCLAMATION);
 			}
 		}
-		// check if GetMessage call itself borked
+		// check if GetMessage call itself worked
 		if (gResult == -1)
 		{
 			

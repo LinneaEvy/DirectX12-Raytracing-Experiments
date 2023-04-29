@@ -37,6 +37,12 @@ private:
 public:
 	Window(int width, int height, const LPCWSTR name);
 	~Window();
+	static const LPCWSTR GetWName() noexcept {
+		return WindowClass::GetName();
+	}
+	HWND GetWInstance() noexcept {
+		return hWnd;//return hwnd instead
+	}
 	Window(const Window&) = delete;
 	Window& operator=(const Window&) = delete;
 	void SetTitle(const std::string& title);

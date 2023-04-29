@@ -1,4 +1,95 @@
-﻿  Graphics.cpp
-  WinMain.cpp
-E:\Root\Working\CppEngine\Lys\Lys\Graphics.cpp(1,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-E:\Root\Working\CppEngine\Lys\Lys\Graphics.cpp(1,10): fatal error C1083: Cannot open include file: '': No such file or directory
+﻿  DxgiInfoManager.cpp
+  Graphics.cpp
+  GraphicsError.cpp
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(1516,1): error C2665: 'std::_Format_arg_traits<_Context>::_Phony_basic_format_arg_constructor': none of the 5 overloads could convert all the argument types
+          with
+          [
+              _Context=std::format_context
+          ] (compiling source file GraphicsError.cpp)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(1507,17): message : could be 'const void *std::_Format_arg_traits<_Context>::_Phony_basic_format_arg_constructor(std::nullptr_t)'
+          with
+          [
+              _Context=std::format_context
+          ] (compiling source file GraphicsError.cpp)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(1497,17): message : or       'const char *std::_Format_arg_traits<_Context>::_Phony_basic_format_arg_constructor(const char *)'
+          with
+          [
+              _Context=std::format_context
+          ] (compiling source file GraphicsError.cpp)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(1495,17): message : or       'long double std::_Format_arg_traits<_Context>::_Phony_basic_format_arg_constructor(long double)'
+          with
+          [
+              _Context=std::format_context
+          ] (compiling source file GraphicsError.cpp)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(1494,17): message : or       'double std::_Format_arg_traits<_Context>::_Phony_basic_format_arg_constructor(double)'
+          with
+          [
+              _Context=std::format_context
+          ] (compiling source file GraphicsError.cpp)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(1493,17): message : or       'float std::_Format_arg_traits<_Context>::_Phony_basic_format_arg_constructor(float)'
+          with
+          [
+              _Context=std::format_context
+          ] (compiling source file GraphicsError.cpp)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(1516,1): message : while trying to match the argument list '(std::ranges::filter_view<std::ranges::transform_view<std::ranges::owning_view<_Rng>,>>::<lambda_1>>,>>::<lambda_2>>)'
+          with
+          [
+              _Rng=std::basic_string<char,std::char_traits<char>,std::allocator<char>>
+          ] (compiling source file GraphicsError.cpp)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(1519): message : see reference to alias template instantiation 'std::_Format_arg_traits<_Context>::_Storage_type<_Ty>' being compiled
+          with
+          [
+              _Context=std::format_context,
+              _Ty=std::ranges::filter_view<std::ranges::transform_view<std::ranges::owning_view<std::basic_string<char,std::char_traits<char>,std::allocator<char>>>,>>::<lambda_1>>,>>::<lambda_2>> &
+          ] (compiling source file GraphicsError.cpp)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(1554): message : see reference to variable template 'const size_t std::_Format_arg_traits<std::basic_format_context<std::back_insert_iterator<std::_Fmt_buffer<char> >,char> >::_Storage_size<std::ranges::filter_view<std::ranges::transform_view<std::ranges::owning_view<std::basic_string<char,std::char_traits<char>,std::allocator<char> > >,`operator>>'::`5'::<lambda_1> >,`operator>>'::`5'::<lambda_2> > &>' being compiled (compiling source file GraphicsError.cpp)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(3003): message : see reference to class template instantiation 'std::_Format_arg_store<_Context,std::ranges::filter_view<std::ranges::transform_view<std::ranges::owning_view<_Rng>,>>::<lambda_1>>,>>::<lambda_2>> &,const char *&,uint_least32_t &>' being compiled
+          with
+          [
+              _Context=std::format_context,
+              _Rng=std::basic_string<char,std::char_traits<char>,std::allocator<char>>
+          ] (compiling source file GraphicsError.cpp)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(3131): message : see reference to function template instantiation 'auto std::make_format_args<std::format_context,std::ranges::filter_view<std::ranges::transform_view<std::ranges::owning_view<_Rng>,>>::<lambda_1>>,>>::<lambda_2>>&,const char*&,uint_least32_t&>(std::ranges::filter_view<std::ranges::transform_view<std::ranges::owning_view<_Rng>,>>::<lambda_1>>,>>::<lambda_2>> &,const char *&,uint_least32_t &)' being compiled
+          with
+          [
+              _Rng=std::basic_string<char,std::char_traits<char>,std::allocator<char>>
+          ] (compiling source file GraphicsError.cpp)
+E:\Root\Working\CppEngine\Lys\Lys\GraphicsError.cpp(67): message : see reference to function template instantiation 'std::string std::format<std::ranges::filter_view<std::ranges::transform_view<std::ranges::owning_view<_Rng>,>>::<lambda_1>>,>>::<lambda_2>>&,const char*,uint_least32_t>(const std::_Basic_format_string<char,std::ranges::filter_view<std::ranges::transform_view<std::ranges::owning_view<_Rng>,>>::<lambda_1>>,>>::<lambda_2>> &,const char *,unsigned int>,std::ranges::filter_view<std::ranges::transform_view<std::ranges::owning_view<_Rng>,>>::<lambda_1>>,>>::<lambda_2>> &,const char *&&,uint_least32_t &&)' being compiled
+          with
+          [
+              _Rng=std::basic_string<char,std::char_traits<char>,std::allocator<char>>
+          ]
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(2806,1): error C2993: 'unknown-type': is not a valid type for non-type template parameter '_Test' (compiling source file GraphicsError.cpp)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(2807,49): error C2641: cannot deduce template arguments for 'std::formatter' (compiling source file GraphicsError.cpp)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(2807,49): error C2783: 'std::formatter<_Ty,_CharT> std::formatter(void)': could not deduce template argument for '_Ty' (compiling source file GraphicsError.cpp)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(2889): message : see declaration of 'std::formatter' (compiling source file GraphicsError.cpp)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(2807,1): error C2780: 'std::formatter<_Ty,_CharT> std::formatter(std::formatter<_Ty,_CharT>)': expects 1 arguments - 0 provided (compiling source file GraphicsError.cpp)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(2888): message : see declaration of 'std::formatter' (compiling source file GraphicsError.cpp)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(2808,23): error C2039: 'parse': is not a member of 'std::formatter' (compiling source file GraphicsError.cpp)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\format(2888): message : see declaration of 'std::formatter' (compiling source file GraphicsError.cpp)
+E:\Root\Working\CppEngine\Lys\Lys\WindowsThrowMacros.h(4,1): warning C4005: 'CHWND_LAST_EXCEPT': macro redefinition (compiling source file DxgiInfoManager.cpp)
+E:\Root\Working\CppEngine\Lys\Lys\Window.h(64): message : see previous definition of 'CHWND_LAST_EXCEPT' (compiling source file DxgiInfoManager.cpp)
+E:\Root\Working\CppEngine\Lys\Lys\DxgiInfoManager.cpp(36,10): warning C4101: 'hr': unreferenced local variable
+E:\Root\Working\CppEngine\Lys\Lys\DxgiInfoManager.cpp(57,3): error C2039: 'HrException': is not a member of 'Graphics'
+E:\Root\Working\CppEngine\Lys\Lys\Graphics.h(38): message : see declaration of 'Graphics'
+E:\Root\Working\CppEngine\Lys\Lys\DxgiInfoManager.cpp(57,3): error C3861: 'HrException': identifier not found
+E:\Root\Working\CppEngine\Lys\Lys\DxgiInfoManager.cpp(62,3): error C2039: 'HrException': is not a member of 'Graphics'
+E:\Root\Working\CppEngine\Lys\Lys\Graphics.h(38): message : see declaration of 'Graphics'
+E:\Root\Working\CppEngine\Lys\Lys\DxgiInfoManager.cpp(62,3): error C3861: 'HrException': identifier not found
+E:\Root\Working\CppEngine\Lys\Lys\Graphics.cpp(572,15): error C2146: syntax error: missing ')' before identifier 'hWnd'
+E:\Root\Working\CppEngine\Lys\Lys\Graphics.cpp(572,19): error C2377: 'HWND': redefinition; typedef cannot be overloaded with any other symbol
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared\windef.h(39): message : see declaration of 'HWND'
+E:\Root\Working\CppEngine\Lys\Lys\Graphics.cpp(572,10): error C2512: 'Graphics': no appropriate default constructor available
+E:\Root\Working\CppEngine\Lys\Lys\Graphics.h(38,7): message : see declaration of 'Graphics' (compiling source file Graphics.cpp)
+E:\Root\Working\CppEngine\Lys\Lys\Graphics.cpp(572,15): error C2146: syntax error: missing ';' before identifier 'hWnd'
+E:\Root\Working\CppEngine\Lys\Lys\Graphics.cpp(572,19): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+E:\Root\Working\CppEngine\Lys\Lys\Graphics.cpp(572,31): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+E:\Root\Working\CppEngine\Lys\Lys\Graphics.cpp(572,31): error C2377: 'UINT': redefinition; typedef cannot be overloaded with any other symbol
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared\minwindef.h(177): message : see declaration of 'UINT'
+E:\Root\Working\CppEngine\Lys\Lys\Graphics.cpp(572,26): error C2146: syntax error: missing ';' before identifier 'width'
+E:\Root\Working\CppEngine\Lys\Lys\Graphics.cpp(572,63): error C2059: syntax error: ')'
+E:\Root\Working\CppEngine\Lys\Lys\Graphics.cpp(573,1): error C2143: syntax error: missing ';' before '{'
+E:\Root\Working\CppEngine\Lys\Lys\Graphics.cpp(573,1): error C2447: '{': missing function header (old-style formal list?)
+E:\Root\Working\CppEngine\Lys\Lys\Graphics.cpp(610,10): error C2059: syntax error: '{'
+E:\Root\Working\CppEngine\Lys\Lys\Graphics.cpp(610,10): error C2143: syntax error: missing ';' before '{'
+E:\Root\Working\CppEngine\Lys\Lys\Graphics.cpp(610,10): error C2447: '{': missing function header (old-style formal list?)

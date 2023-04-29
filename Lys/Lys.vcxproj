@@ -97,6 +97,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d3d12.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -118,6 +119,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d3d12.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -135,6 +137,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d3d12.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -156,32 +159,83 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d3d12.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Channel.cpp" />
     <ClCompile Include="ChiliException.cpp" />
+    <ClCompile Include="dxerr.cpp" />
+    <ClCompile Include="DxgiInfoManager.cpp" />
+    <ClCompile Include="EntryBuilder.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="GraphicsError.cpp" />
     <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="Level.cpp" />
     <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="ProgramExecution.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WindowsMessageMap.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Channel.h" />
     <ClInclude Include="ChiliException.h" />
+    <ClInclude Include="d3d12.h" />
+    <ClInclude Include="d3d12compatibility.h" />
+    <ClInclude Include="d3d12sdklayers.h" />
+    <ClInclude Include="d3d12shader.h" />
+    <ClInclude Include="D3D12TokenizedProgramFormat.hpp" />
+    <ClInclude Include="d3d12video.h" />
+    <ClInclude Include="d3dcommon.h" />
+    <ClInclude Include="d3dx12.h" />
+    <ClInclude Include="d3dx12_barriers.h" />
+    <ClInclude Include="d3dx12_check_feature_support.h" />
+    <ClInclude Include="d3dx12_core.h" />
+    <ClInclude Include="d3dx12_default.h" />
+    <ClInclude Include="d3dx12_pipeline_state_stream.h" />
+    <ClInclude Include="d3dx12_property_format_table.h" />
+    <ClInclude Include="d3dx12_render_pass.h" />
+    <ClInclude Include="d3dx12_resource_helpers.h" />
+    <ClInclude Include="d3dx12_root_signature.h" />
+    <ClInclude Include="d3dx12_state_object.h" />
+    <ClInclude Include="Driver.h" />
+    <ClInclude Include="dxerr.h" />
+    <ClInclude Include="DxgiInfoManager.h" />
+    <ClInclude Include="DXSample.h" />
+    <ClInclude Include="Entry.h" />
+    <ClInclude Include="EntryBuilder.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="GraphicsError.h" />
+    <ClInclude Include="GraphicsThrowMacros.h" />
     <ClInclude Include="HighIncWindows.h" />
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="Level.h" />
     <ClInclude Include="Mouse.h" />
+    <ClInclude Include="Policy.h" />
+    <ClInclude Include="ProgramExecution.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WindowsMessageMap.h" />
+    <ClInclude Include="WindowsThrowMacros.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Lys.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="LysIcon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DXGetErrorDescription.inl" />
+    <None Include="DXGetErrorString.inl" />
+    <None Include="DXTrace.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="d3d12.idl" />
+    <Midl Include="d3d12compatibility.idl" />
+    <Midl Include="d3d12sdklayers.idl" />
+    <Midl Include="d3d12video.idl" />
+    <Midl Include="d3dcommon.idl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

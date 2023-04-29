@@ -13,15 +13,21 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="ExceptionHandeling">
+      <UniqueIdentifier>{3bd38671-5f46-4cd5-957c-563802877ee3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExceptionHandeling\Dxerr">
+      <UniqueIdentifier>{73d7177f-446b-4d71-abc7-8c28b979c2ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DX12">
+      <UniqueIdentifier>{8c348432-6072-4851-b93a-b4e1c32168d3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ChiliException.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WindowsMessageMap.cpp">
@@ -36,15 +42,36 @@
     <ClCompile Include="Graphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dxerr.cpp">
+      <Filter>ExceptionHandeling\Dxerr</Filter>
+    </ClCompile>
+    <ClCompile Include="ChiliException.cpp">
+      <Filter>ExceptionHandeling</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsError.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProgramExecution.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Channel.cpp">
+      <Filter>ExceptionHandeling</Filter>
+    </ClCompile>
+    <ClCompile Include="EntryBuilder.cpp">
+      <Filter>ExceptionHandeling</Filter>
+    </ClCompile>
+    <ClCompile Include="Level.cpp">
+      <Filter>ExceptionHandeling</Filter>
+    </ClCompile>
+    <ClCompile Include="DxgiInfoManager.cpp">
+      <Filter>ExceptionHandeling\Dxerr</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HighIncWindows.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ChiliException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WindowsMessageMap.h">
@@ -62,6 +89,102 @@
     <ClInclude Include="Graphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="dxerr.h">
+      <Filter>ExceptionHandeling\Dxerr</Filter>
+    </ClInclude>
+    <ClInclude Include="DXSample.h">
+      <Filter>ExceptionHandeling\Dxerr</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsThrowMacros.h">
+      <Filter>ExceptionHandeling</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsThrowMacros.h">
+      <Filter>ExceptionHandeling</Filter>
+    </ClInclude>
+    <ClInclude Include="ChiliException.h">
+      <Filter>ExceptionHandeling</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsError.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12_barriers.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12_check_feature_support.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12_core.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12_default.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12_pipeline_state_stream.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12_property_format_table.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12_render_pass.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12_resource_helpers.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12_root_signature.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12_state_object.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3d12.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3d12compatibility.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3d12sdklayers.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3d12shader.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12TokenizedProgramFormat.hpp">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3d12video.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dcommon.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="ProgramExecution.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Channel.h">
+      <Filter>ExceptionHandeling</Filter>
+    </ClInclude>
+    <ClInclude Include="Driver.h">
+      <Filter>ExceptionHandeling</Filter>
+    </ClInclude>
+    <ClInclude Include="Entry.h">
+      <Filter>ExceptionHandeling</Filter>
+    </ClInclude>
+    <ClInclude Include="EntryBuilder.h">
+      <Filter>ExceptionHandeling</Filter>
+    </ClInclude>
+    <ClInclude Include="Level.h">
+      <Filter>ExceptionHandeling</Filter>
+    </ClInclude>
+    <ClInclude Include="Policy.h">
+      <Filter>ExceptionHandeling</Filter>
+    </ClInclude>
+    <ClInclude Include="DxgiInfoManager.h">
+      <Filter>ExceptionHandeling\Dxerr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Lys.rc">
@@ -72,5 +195,33 @@
     <Image Include="LysIcon.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DXGetErrorDescription.inl">
+      <Filter>ExceptionHandeling\Dxerr</Filter>
+    </None>
+    <None Include="DXGetErrorString.inl">
+      <Filter>ExceptionHandeling\Dxerr</Filter>
+    </None>
+    <None Include="DXTrace.inl">
+      <Filter>ExceptionHandeling\Dxerr</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="d3d12.idl">
+      <Filter>DX12</Filter>
+    </Midl>
+    <Midl Include="d3d12compatibility.idl">
+      <Filter>DX12</Filter>
+    </Midl>
+    <Midl Include="d3d12sdklayers.idl">
+      <Filter>DX12</Filter>
+    </Midl>
+    <Midl Include="d3d12video.idl">
+      <Filter>DX12</Filter>
+    </Midl>
+    <Midl Include="d3dcommon.idl">
+      <Filter>DX12</Filter>
+    </Midl>
   </ItemGroup>
 </Project>
