@@ -38,7 +38,6 @@ using namespace Microsoft::WRL;
 class Graphics
 {
 public:
-    /*
     class Exception : public ChiliException
     {
         using ChiliException::ChiliException;//he felt too lazy to write 
@@ -76,7 +75,6 @@ public:
     private:
         std::string reason;
     };
-    */
 
     Graphics(HWND hWnd, UINT width, UINT height, std::wstring name);
     Graphics(const Graphics&) = delete;

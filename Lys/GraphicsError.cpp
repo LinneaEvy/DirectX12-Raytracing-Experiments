@@ -63,8 +63,7 @@ namespace vi = rn::views;
 				vi::filter([](char c) {return c != '\r'; }) /* |
 				rn::to<std::basic_string>()*/;
 			throw std::runtime_error{
-				std::format("Graphics Error: {}\n   {}({})",
-				errorString, g.loc.file_name(), g.loc.line())
+				std::format("Graphics Error: {0}, {1}, {2}", ToNarrow(GetErrorDescription(g.hr)) , g.loc.file_name(), g.loc.line())
 			};
 		}
 	}

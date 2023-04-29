@@ -62,7 +62,24 @@ int CALLBACK WinMain(
 			}
 			if (wnd.kbd.KeyIsPressed(VK_MENU))
 			{
+				renderer.Update();
+				renderer.Render();
 				MessageBox(nullptr, L"das Licht geht an", L"The alt key was pressed", MB_OK | MB_ICONEXCLAMATION);
+			}
+			if (wnd.kbd.KeyIsPressed(VK_F11))
+			{
+				MessageBox(nullptr, L"das Licht geht an", L"f11", MB_OK | MB_ICONEXCLAMATION);
+				renderer.SetFullscreen(true);
+			}
+			if (wnd.kbd.KeyIsPressed(WM_SIZE))
+			{
+				RECT clientRect = {};
+				::GetClientRect(wnd.GetWInstance(), &clientRect);
+
+				int width = clientRect.right - clientRect.left;
+				int height = clientRect.bottom - clientRect.top;
+
+				renderer.Resize(width, height);
 			}
 		}
 		// check if GetMessage call itself worked

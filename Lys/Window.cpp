@@ -48,6 +48,7 @@ HINSTANCE Window::WindowClass::GetInstance() noexcept
 }
 
 
+
 // Window Stuff
 Window::Window(int width, int height, const LPCWSTR name)
 {
@@ -193,32 +194,13 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 		case VK_ESCAPE:
 			::PostQuitMessage(0);
 			break;
-		case VK_RETURN:
-			//if (alt)
-			//{
-		case VK_F11:
-			//SetFullscreen(!g_Fullscreen);
-			//}
-			break;
 		}
 	}
 	break;
 	// The default window procedure will play a system notification sound 
 	// when pressing the Alt+Enter keyboard combination if this message is 
 	// not handled.
-	case WM_SYSCHAR:
-		break;
-	case WM_SIZE:
-	{
-		/*RECT clientRect = {};
-		::GetClientRect(g_hWnd, &clientRect);
-
-		int width = clientRect.right - clientRect.left;
-		int height = clientRect.bottom - clientRect.top;
-
-		Resize(width, height);*/
-	}
-	break;
+	
 
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);

@@ -1,10 +1,11 @@
 #pragma once
 #include "Graphics.h"
 
-//#include "dxerr.h"
+#include "dxerr.h"
 #include "GraphicsError.h"
 #include <tchar.h>
-/*
+#include <Winuser.h>
+
 // Graphics exception stuff
 Graphics::HrException::HrException(int line, const char* file, HRESULT hr, std::vector<std::string> infoMsgs) noexcept
     :
@@ -51,16 +52,18 @@ HRESULT Graphics::HrException::GetErrorCode() const noexcept
     return hr;
 }
 
+
 std::string Graphics::HrException::GetErrorString() const noexcept
 {
-    return DXGetErrorString(hr);
+    return ToNarrow(DXGetErrorString(hr));
 }
+
 
 std::string Graphics::HrException::GetErrorDescription() const noexcept
 {
-    char buf[512];
+    WCHAR buf[512];
     DXGetErrorDescription(hr, buf, sizeof(buf));
-    return buf;
+    return ToNarrow(buf);
 }
 
 std::string Graphics::HrException::GetErrorInfo() const noexcept
@@ -111,7 +114,55 @@ std::string Graphics::InfoException::GetErrorInfo() const noexcept
     return info;
 }
 
-*/
+
+
+Graphics::Graphics(HWND hWnd, UINT width, UINT height, std::wstring name)
+{
+    //SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
+    // Window class name. Used for registering / creating the window.
+    //const wchar_t* windowClassName = L"DX12WindowClass";
+    //ParseCommandLineArguments();
+    EnableDebugLayer();
+    g_TearingSupported = CheckTearingSupport();
+    g_hWnd = hWnd;
+    g_ClientWidth = width;
+    g_ClientHeight = height;
+    // Windows 10 Creators update adds Per Monitor V2 DPI awareness context.
+    // Using this awareness context allows the client area of the window 
+    // to achieve 100% scaling while still allowing non-client window content to 
+    // be rendered in a DPI sensitive fashion.
+    
+
+    //RegisterWindowClass(hInstance, windowClassName);
+    //g_hWnd = CreateWindow(windowClassName, hInstance, L"Learning DirectX 12", g_ClientWidth, g_ClientHeight);
+    
+
+    loadPipeline();
+    /*
+    ::ShowWindow(g_hWnd, SW_SHOW);
+
+    MSG msg = {};
+    while (msg.message != WM_QUIT)
+    {
+        if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        {
+            ::TranslateMessage(&msg);
+            ::DispatchMessage(&msg);
+        }
+    }
+    // Make sure the command queue has finished all commands before closing.
+    */
+
+
+
+}
+
+Graphics::~Graphics()
+{
+    Flush(g_CommandQueue, g_Fence, g_FenceValue, g_FenceEvent);
+    ::CloseHandle(g_FenceEvent);
+}
 
 void Graphics::EnableDebugLayer()
 {
@@ -491,6 +542,8 @@ void Graphics::Resize(uint32_t width, uint32_t height)
 
 void Graphics::SetFullscreen(bool fullscreen)
 {
+    
+    fullscreen = !g_Fullscreen;
     if (g_Fullscreen != fullscreen)
     {
         g_Fullscreen = fullscreen;
@@ -569,47 +622,4 @@ void Graphics::loadPipeline() {
 }
 //first fix minmax and char conversions that do not work
 //first create a window then create a renderer called graphics which loads the pipline and then handle messages where one of them calls update and render on our thing
-Graphics(HWND hWnd, UINT width, UINT height, std::wstring name)
-{
-    // Windows 10 Creators update adds Per Monitor V2 DPI awareness context.
-    // Using this awareness context allows the client area of the window 
-    // to achieve 100% scaling while still allowing non-client window content to 
-    // be rendered in a DPI sensitive fashion.
-    SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
-    // Window class name. Used for registering / creating the window.
-    //const wchar_t* windowClassName = L"DX12WindowClass";
-    //ParseCommandLineArguments();
-    EnableDebugLayer();
-    g_TearingSupported = CheckTearingSupport();
-
-    //RegisterWindowClass(hInstance, windowClassName);
-    //g_hWnd = CreateWindow(windowClassName, hInstance, L"Learning DirectX 12", g_ClientWidth, g_ClientHeight);
-    g_hWnd = hWnd;
-
-    loadPipeline();
-    /*
-    ::ShowWindow(g_hWnd, SW_SHOW);
-
-    MSG msg = {};
-    while (msg.message != WM_QUIT)
-    {
-        if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-        {
-            ::TranslateMessage(&msg);
-            ::DispatchMessage(&msg);
-        }
-    }
-    // Make sure the command queue has finished all commands before closing.
-    */
-
-    
-
-} 
-
-Graphics~{
-    Flush(g_CommandQueue, g_Fence, g_FenceValue, g_FenceEvent);
-    ::CloseHandle(g_FenceEvent);
-
-    return 0;
-}
