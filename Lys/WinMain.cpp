@@ -1,8 +1,8 @@
 #include "Window.h"
 #include <tchar.h>
 #include <iostream>
-#include "D3D12.h"
 #include "Graphics.h"
+#include "WindowsThrowMacros.h"
 
 /*void D3D12::OnInit()
 {
@@ -38,11 +38,9 @@ const wchar_t* GetWC(const char* c)
 
 	return wc;
 }
-int CALLBACK WinMain(
-	HINSTANCE hInstance,
-	HINSTANCE hPrevInstance,
-	LPSTR lpCmdLine,
-	int nCmdShow) 
+
+
+int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
 {
 	try
 	{

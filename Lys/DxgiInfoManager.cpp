@@ -19,8 +19,8 @@ DxgiInfoManager::DxgiInfoManager()
 	const auto hModDxgiDebug = LoadLibraryEx( L"dxgidebug.dll",nullptr,LOAD_LIBRARY_SEARCH_SYSTEM32 );
 	if( hModDxgiDebug == nullptr )
 	{
-		//throw CHWND_LAST_EXCEPT();
-		throw "CHWND_LAST_EXCEPT";
+		throw CHWND_LAST_EXCEPT();
+		//throw "CHWND_LAST_EXCEPT";
 	}
 
 	// get address of DXGIGetDebugInterface in dll
@@ -29,12 +29,12 @@ DxgiInfoManager::DxgiInfoManager()
 	);
 	if( DxgiGetDebugInterface == nullptr )
 	{
-		//throw CHWND_LAST_EXCEPT();
-		throw "CHWND_LAST_EXCEPT";
+		throw CHWND_LAST_EXCEPT();
+		//throw "CHWND_LAST_EXCEPT";
 	}
 
 	HRESULT hr;
-	//GFX_THROW_NOINFO( DxgiGetDebugInterface( __uuidof(IDXGIInfoQueue),&pDxgiInfoQueue ) );
+	GFX_THROW_NOINFO( DxgiGetDebugInterface( __uuidof(IDXGIInfoQueue),&pDxgiInfoQueue ) );
 	throw "GFX_THROW_NOINFO";
 }
 

@@ -61,9 +61,9 @@ std::string Graphics::HrException::GetErrorString() const noexcept
 
 std::string Graphics::HrException::GetErrorDescription() const noexcept
 {
-    WCHAR buf[512];
-    DXGetErrorDescription(hr, buf, sizeof(buf));
-    return ToNarrow(buf);
+    char buf[512];
+    DXGetErrorDescriptionA(hr, buf, sizeof(buf));
+    return buf;
 }
 
 std::string Graphics::HrException::GetErrorInfo() const noexcept
