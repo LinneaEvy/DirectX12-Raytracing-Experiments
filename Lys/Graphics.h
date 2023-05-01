@@ -29,6 +29,11 @@
 #include "ChiliException.h"
 
 
+#include <dxcapi.h>
+#include <vector>
+#include "TopLevelASGenerator.h"
+
+
 
 
 
@@ -77,6 +82,22 @@ public:
     private:
         std::string reason;
     };
+    //class RayTracing {
+        struct AccelerationStructureBuffers
+        {
+            ComPtr<ID3D12Resource> pScratch; // Scratch memory for AS builder 
+            ComPtr<ID3D12Resource> pResult; // Where the AS is 
+            ComPtr<ID3D12Resource> pInstanceDesc; // Hold the matrices of the instances
+        };
+        ComPtr<ID3D12Resource> m_bottomLevelAS; // Storage for the bottom Level AS
+        nv_helpers_dx12::TopLevelASGenerator m_topLevelASGenerator;
+        AccelerationStructureBuffers m_topLevelASBuffers;
+        std::vector<std::pair<ComPtr<ID3D12Resource>, DirectX::XMMATRIX>> m_instances;
+        AccelerationStructureBuffers CreateBottomLevelAS(std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vVertexBuffers);
+        void CreateTopLevelAS(const std::vector<std::pair<ComPtr<ID3D12Resource>, DirectX::XMMATRIX>>& instances);
+        void CreateAccelerationStructures();
+    //};
+
 
     Graphics(HWND hWnd, UINT width, UINT height, std::wstring name);
     Graphics(const Graphics&) = delete;
@@ -85,22 +106,22 @@ public:
 
 
     void EnableDebugLayer();
-    ComPtr<IDXGIAdapter4> GetAdapter(bool useWarp);
-    ComPtr<ID3D12Device2> CreateDevice(ComPtr<IDXGIAdapter4> adapter);
-    ComPtr<ID3D12CommandQueue> CreateCommandQueue(ComPtr<ID3D12Device2> device, D3D12_COMMAND_LIST_TYPE type);
+    ComPtr<IDXGIAdapter1> GetAdapter(bool useWarp);
+    ComPtr<ID3D12Device5> CreateDevice(ComPtr<IDXGIAdapter1> adapter);
+    ComPtr<ID3D12CommandQueue> CreateCommandQueue(ComPtr<ID3D12Device5> device, D3D12_COMMAND_LIST_TYPE type);
     bool CheckTearingSupport();
     ComPtr<IDXGISwapChain4> CreateSwapChain(HWND hWnd,
         ComPtr<ID3D12CommandQueue> commandQueue,
         uint32_t width, uint32_t height, uint32_t bufferCount);
-    ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(ComPtr<ID3D12Device2> device,
+    ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(ComPtr<ID3D12Device5> device,
         D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptors);
-    void UpdateRenderTargetViews(ComPtr<ID3D12Device2> device,
+    void UpdateRenderTargetViews(ComPtr<ID3D12Device5> device,
         ComPtr<IDXGISwapChain4> swapChain, ComPtr<ID3D12DescriptorHeap> descriptorHeap);
-    ComPtr<ID3D12CommandAllocator> CreateCommandAllocator(ComPtr<ID3D12Device2> device,
+    ComPtr<ID3D12CommandAllocator> CreateCommandAllocator(ComPtr<ID3D12Device5> device,
         D3D12_COMMAND_LIST_TYPE type);
-    ComPtr<ID3D12GraphicsCommandList> CreateCommandList(ComPtr<ID3D12Device2> device,
+    ComPtr<ID3D12GraphicsCommandList4> CreateCommandList(ComPtr<ID3D12Device5> device,
         ComPtr<ID3D12CommandAllocator> commandAllocator, D3D12_COMMAND_LIST_TYPE type);
-    ComPtr<ID3D12Fence> CreateFence(ComPtr<ID3D12Device2> device);
+    ComPtr<ID3D12Fence> CreateFence(ComPtr<ID3D12Device5> device);
     HANDLE CreateEventHandle();
     uint64_t Signal(ComPtr<ID3D12CommandQueue> commandQueue, ComPtr<ID3D12Fence> fence,
         uint64_t& fenceValue);
@@ -135,15 +156,19 @@ private:
 
     //Pipeline assets:
 
-    ComPtr<ID3D12Device2> g_Device;
+    ComPtr<ID3D12Device5> g_Device;
     ComPtr<ID3D12CommandQueue> g_CommandQueue;
     ComPtr<IDXGISwapChain4> g_SwapChain;
     ComPtr<ID3D12Resource> g_BackBuffers[g_NumFrames];
-    ComPtr<ID3D12GraphicsCommandList> g_CommandList;
+    ComPtr<ID3D12GraphicsCommandList4> g_CommandList;
     ComPtr<ID3D12CommandAllocator> g_CommandAllocators[g_NumFrames];
     ComPtr<ID3D12DescriptorHeap> g_RTVDescriptorHeap;
     UINT g_RTVDescriptorSize;
     UINT g_CurrentBackBufferIndex;
+    ComPtr<ID3D12PipelineState> g_pipelineState;
+    ComPtr<ID3D12Resource> g_vertexBuffer;
+    D3D12_VERTEX_BUFFER_VIEW g_vertexBufferView;
+    float g_aspectRatio = 10;
 
     ComPtr<ID3D12Fence> g_Fence;
     uint64_t g_FenceValue = 0;
@@ -157,7 +182,7 @@ private:
     bool g_TearingSupported = false;// By default, use windowed mode.// Can be toggled with the Alt+Enter or F11
     bool g_Fullscreen = false;
 
-
+    void CheckRaytracingSupport();
 
     void LoadPipeline();
     void LoadAssets();

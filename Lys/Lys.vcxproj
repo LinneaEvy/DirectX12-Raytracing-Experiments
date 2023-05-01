@@ -93,6 +93,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -113,6 +114,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -163,6 +165,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BottomLevelASGenerator.cpp" />
     <ClCompile Include="Channel.cpp" />
     <ClCompile Include="ChiliException.cpp" />
     <ClCompile Include="dxerr.cpp" />
@@ -174,11 +177,16 @@
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="ProgramExecution.cpp" />
+    <ClCompile Include="RaytracingPipelineGenerator.cpp" />
+    <ClCompile Include="RootSignatureGenerator.cpp" />
+    <ClCompile Include="ShaderBindingTableGenerator.cpp" />
+    <ClCompile Include="TopLevelASGenerator.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WindowsMessageMap.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BottomLevelASGenerator.h" />
     <ClInclude Include="Channel.h" />
     <ClInclude Include="ChiliException.h" />
     <ClInclude Include="d3d12.h" />
@@ -202,6 +210,9 @@
     <ClInclude Include="Driver.h" />
     <ClInclude Include="dxerr.h" />
     <ClInclude Include="DxgiInfoManager.h" />
+    <ClInclude Include="DXRHelper.h">
+      <DeploymentContent>false</DeploymentContent>
+    </ClInclude>
     <ClInclude Include="DXSample.h" />
     <ClInclude Include="Entry.h" />
     <ClInclude Include="EntryBuilder.h" />
@@ -214,7 +225,11 @@
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Policy.h" />
     <ClInclude Include="ProgramExecution.h" />
+    <ClInclude Include="RaytracingPipelineGenerator.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="RootSignatureGenerator.h" />
+    <ClInclude Include="ShaderBindingTableGenerator.h" />
+    <ClInclude Include="TopLevelASGenerator.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WindowsMessageMap.h" />
     <ClInclude Include="WindowsThrowMacros.h" />

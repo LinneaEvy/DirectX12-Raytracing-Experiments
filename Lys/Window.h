@@ -64,6 +64,7 @@ private:
 public:
 	Keyboard kbd;
 	Mouse mouse;
+	UINT Graphicsmsg;
 private:
 	int width;
 	int height;

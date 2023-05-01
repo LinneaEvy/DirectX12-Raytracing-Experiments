@@ -60,6 +60,21 @@ Window::Window(int width, int height, const LPCWSTR name) :
 	wr.right = width + wr.left;
 	wr.top = 100;
 	wr.bottom = height + wr.top;
+	/*
+	int screenWidth = ::GetSystemMetrics(SM_CXSCREEN);
+	int screenHeight = ::GetSystemMetrics(SM_CYSCREEN);
+
+	RECT windowRect = { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
+	::AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
+
+	int windowWidth = windowRect.right - windowRect.left;
+	int windowHeight = windowRect.bottom - windowRect.top;
+
+	// Center the window within the screen. Clamp to 0, 0 for the top-left corner.
+	int windowX = std::max<int>(0, (screenWidth - windowWidth) / 2);
+	int windowY = std::max<int>(0, (screenHeight - windowHeight) / 2);*/
+
+
 	if (AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE) == 0)
 	{
 		throw CHWND_LAST_EXCEPT();
@@ -67,10 +82,11 @@ Window::Window(int width, int height, const LPCWSTR name) :
 	// create window & get hWnd
 	hWnd = CreateWindow(
 		WindowClass::GetName(), name,
-		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,
+		WS_CAPTION | WS_OVERLAPPED | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU,
 		CW_USEDEFAULT, CW_USEDEFAULT, wr.right - wr.left, wr.bottom - wr.top,
 		nullptr, nullptr, WindowClass::GetInstance(), this
 	);
+	
 	// check for error
 	if (hWnd == nullptr)
 	{
@@ -181,10 +197,15 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 			mouse.OnWheelDown(pt.x, pt.y);
 		}
 		break;
-	}/*case WM_PAINT:
-		Update();
-		Render();
-		break;*/
+	}case WM_PAINT:
+		Graphicsmsg = msg;
+		break; 
+	case VK_F11:
+		Graphicsmsg = msg;
+		break; 
+	case WM_SIZE:
+		Graphicsmsg = msg;
+		break; 
 	case WM_KEYDOWN:
 	{
 		bool alt = (::GetAsyncKeyState(VK_MENU) & 0x8000) != 0;
@@ -200,6 +221,8 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 		}
 	}
 	break;
+	default:
+		Graphicsmsg = NULL;
 	// The default window procedure will play a system notification sound 
 	// when pressing the Alt+Enter keyboard combination if this message is 
 	// not handled.

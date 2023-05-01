@@ -66,6 +66,21 @@
     <ClCompile Include="DxgiInfoManager.cpp">
       <Filter>ExceptionHandeling\Dxerr</Filter>
     </ClCompile>
+    <ClCompile Include="BottomLevelASGenerator.cpp">
+      <Filter>DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="RaytracingPipelineGenerator.cpp">
+      <Filter>DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="RootSignatureGenerator.cpp">
+      <Filter>DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderBindingTableGenerator.cpp">
+      <Filter>DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="TopLevelASGenerator.cpp">
+      <Filter>DX12</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HighIncWindows.h">
@@ -184,6 +199,24 @@
     </ClInclude>
     <ClInclude Include="DxgiInfoManager.h">
       <Filter>ExceptionHandeling\Dxerr</Filter>
+    </ClInclude>
+    <ClInclude Include="DXRHelper.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="BottomLevelASGenerator.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="RaytracingPipelineGenerator.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="RootSignatureGenerator.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderBindingTableGenerator.h">
+      <Filter>DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="TopLevelASGenerator.h">
+      <Filter>DX12</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

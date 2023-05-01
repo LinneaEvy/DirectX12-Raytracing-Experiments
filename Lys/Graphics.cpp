@@ -1,11 +1,12 @@
 #pragma once
 #include "Graphics.h"
-
 #include "dxerr.h"
 #include "GraphicsError.h"
 #include <tchar.h>
 #include <Winuser.h>
 
+#include "DXRHelper.h"
+#include "BottomLevelASGenerator.h"
 // Graphics exception stuff
 Graphics::HrException::HrException(int line, const char* file, HRESULT hr, std::vector<std::string> infoMsgs) noexcept
     :
@@ -173,7 +174,7 @@ void Graphics::EnableDebugLayer()
     #endif
 }
 
-ComPtr<IDXGIAdapter4> Graphics::GetAdapter(bool useWarp)
+ComPtr<IDXGIAdapter1> Graphics::GetAdapter(bool useWarp)
 {
     ComPtr<IDXGIFactory4> dxgiFactory;
     UINT createFactoryFlags = 0;
@@ -184,11 +185,11 @@ ComPtr<IDXGIAdapter4> Graphics::GetAdapter(bool useWarp)
     CreateDXGIFactory2(createFactoryFlags, IID_PPV_ARGS(&dxgiFactory)) >> chk;
 
     ComPtr<IDXGIAdapter1> dxgiAdapter1;
-    ComPtr<IDXGIAdapter4> dxgiAdapter4;
+    //ComPtr<IDXGIAdapter4> dxgiAdapter4;
     if (useWarp)
     {
         dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&dxgiAdapter1)) >> chk;
-        dxgiAdapter1.As(&dxgiAdapter4) >> chk;
+        //dxgiAdapter1.As(&dxgiAdapter4) >> chk;
     }
     else
     {
@@ -207,22 +208,22 @@ ComPtr<IDXGIAdapter4> Graphics::GetAdapter(bool useWarp)
                 dxgiAdapterDesc1.DedicatedVideoMemory > maxDedicatedVideoMemory)
             {
                 maxDedicatedVideoMemory = dxgiAdapterDesc1.DedicatedVideoMemory;
-                dxgiAdapter1.As(&dxgiAdapter4) >> chk;
+                //dxgiAdapter1.As(&dxgiAdapter4) >> chk;
             }
         }
     }
 
-    return dxgiAdapter4;
+    return dxgiAdapter1;
 }
 
-ComPtr<ID3D12Device2> Graphics::CreateDevice(ComPtr<IDXGIAdapter4> adapter)
+ComPtr<ID3D12Device5> Graphics::CreateDevice(ComPtr<IDXGIAdapter1> adapter)
 {
-    ComPtr<ID3D12Device2> d3d12Device2;
-    D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&d3d12Device2)) >> chk;
+    ComPtr<ID3D12Device5> d3d12Device5;
+    D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&d3d12Device5)) >> chk;
     // Enable debug messages in debug mode.
 #if defined(_DEBUG)
     ComPtr<ID3D12InfoQueue> pInfoQueue;
-    if (SUCCEEDED(d3d12Device2.As(&pInfoQueue)))
+    if (SUCCEEDED(d3d12Device5.As(&pInfoQueue)))
     {
         pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
         pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
@@ -255,10 +256,10 @@ ComPtr<ID3D12Device2> Graphics::CreateDevice(ComPtr<IDXGIAdapter4> adapter)
     }
 #endif
 
-    return d3d12Device2;
+    return d3d12Device5;
 }
 
-ComPtr<ID3D12CommandQueue> Graphics::CreateCommandQueue(ComPtr<ID3D12Device2> device, D3D12_COMMAND_LIST_TYPE type)
+ComPtr<ID3D12CommandQueue> Graphics::CreateCommandQueue(ComPtr<ID3D12Device5> device, D3D12_COMMAND_LIST_TYPE type)
 {
     ComPtr<ID3D12CommandQueue> d3d12CommandQueue;
 
@@ -336,14 +337,13 @@ ComPtr<IDXGISwapChain4> Graphics::CreateSwapChain(HWND hWnd,
     // Disable the Alt+Enter fullscreen toggle feature. Switching to fullscreen
     // will be handled manually.
     dxgiFactory4->MakeWindowAssociation(hWnd, DXGI_MWA_NO_ALT_ENTER) >> chk;
-
     swapChain1.As(&dxgiSwapChain4) >> chk;
 
     return dxgiSwapChain4;
 }
     
 
-ComPtr<ID3D12DescriptorHeap> Graphics::CreateDescriptorHeap(ComPtr<ID3D12Device2> device,
+ComPtr<ID3D12DescriptorHeap> Graphics::CreateDescriptorHeap(ComPtr<ID3D12Device5> device,
     D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptors)
 {
     ComPtr<ID3D12DescriptorHeap> descriptorHeap;
@@ -357,7 +357,7 @@ ComPtr<ID3D12DescriptorHeap> Graphics::CreateDescriptorHeap(ComPtr<ID3D12Device2
     return descriptorHeap;
 }
 
-void Graphics::UpdateRenderTargetViews(ComPtr<ID3D12Device2> device,
+void Graphics::UpdateRenderTargetViews(ComPtr<ID3D12Device5> device,
     ComPtr<IDXGISwapChain4> swapChain, ComPtr<ID3D12DescriptorHeap> descriptorHeap)
 {
     auto rtvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -377,7 +377,7 @@ void Graphics::UpdateRenderTargetViews(ComPtr<ID3D12Device2> device,
     }
 }
 
-ComPtr<ID3D12CommandAllocator> Graphics::CreateCommandAllocator(ComPtr<ID3D12Device2> device,
+ComPtr<ID3D12CommandAllocator> Graphics::CreateCommandAllocator(ComPtr<ID3D12Device5> device,
     D3D12_COMMAND_LIST_TYPE type)
 {
     ComPtr<ID3D12CommandAllocator> commandAllocator;
@@ -386,18 +386,18 @@ ComPtr<ID3D12CommandAllocator> Graphics::CreateCommandAllocator(ComPtr<ID3D12Dev
     return commandAllocator;
 }
 
-ComPtr<ID3D12GraphicsCommandList> Graphics::CreateCommandList(ComPtr<ID3D12Device2> device,
+ComPtr<ID3D12GraphicsCommandList4> Graphics::CreateCommandList(ComPtr<ID3D12Device5> device,
     ComPtr<ID3D12CommandAllocator> commandAllocator, D3D12_COMMAND_LIST_TYPE type)
 {
-    ComPtr<ID3D12GraphicsCommandList> commandList;
-    device->CreateCommandList(0, type, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList)) >> chk;
+    ComPtr<ID3D12GraphicsCommandList4> commandList;
+    device->CreateCommandList(0, type, commandAllocator.Get(), g_pipelineState.Get(), IID_PPV_ARGS(&commandList)) >> chk;
 
-    commandList->Close() >> chk;
+    //commandList->Close() >> chk;
 
     return commandList;
 }
 
-ComPtr<ID3D12Fence> Graphics::CreateFence(ComPtr<ID3D12Device2> device)
+ComPtr<ID3D12Fence> Graphics::CreateFence(ComPtr<ID3D12Device5> device)
 {
     ComPtr<ID3D12Fence> fence;
 
@@ -594,9 +594,9 @@ void Graphics::SetFullscreen(bool fullscreen)
 void Graphics::loadPipeline() {
     // Initialize the global window rect variable.
     ::GetWindowRect(g_hWnd, &g_WindowRect);
-    ComPtr<IDXGIAdapter4> dxgiAdapter4 = GetAdapter(g_UseWarp);
+    ComPtr<IDXGIAdapter1> dxgiAdapter1 = GetAdapter(false);
 
-    g_Device = CreateDevice(dxgiAdapter4);
+    g_Device = CreateDevice(dxgiAdapter1);
 
     g_CommandQueue = CreateCommandQueue(g_Device, D3D12_COMMAND_LIST_TYPE_DIRECT);
 
@@ -615,11 +615,132 @@ void Graphics::loadPipeline() {
     }
     g_CommandList = CreateCommandList(g_Device,
         g_CommandAllocators[g_CurrentBackBufferIndex], D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+
+
+    {
+        // Define the geometry for a triangle.
+        Vertex triangleVertices[] =
+        {
+            { { 0.0f, 0.25f * g_aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+            { { 0.25f, -0.25f * g_aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+            { { -0.25f, -0.25f * g_aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+        };
+
+        const UINT vertexBufferSize = sizeof(triangleVertices);
+
+        // Note: using upload heaps to transfer static data like vert buffers is not 
+        // recommended. Every time the GPU needs it, the upload heap will be marshalled 
+        // over. Please read up on Default Heap usage. An upload heap is used here for 
+        // code simplicity and because there are very few verts to actually transfer.
+        auto a = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);//to avoid illegal l value referencing
+        auto b = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
+        g_Device->CreateCommittedResource(
+            &a,
+            D3D12_HEAP_FLAG_NONE,
+            &b,
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            nullptr,
+            IID_PPV_ARGS(&g_vertexBuffer)) >> chk;
+
+        // Copy the triangle data to the vertex buffer.
+        UINT8* pVertexDataBegin;
+        CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
+        g_vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)) >> chk;
+        memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
+        g_vertexBuffer->Unmap(0, nullptr);
+
+        // Initialize the vertex buffer view.
+        g_vertexBufferView.BufferLocation = g_vertexBuffer->GetGPUVirtualAddress();
+        g_vertexBufferView.StrideInBytes = sizeof(Vertex);
+        g_vertexBufferView.SizeInBytes = vertexBufferSize;
+    }
+
+    //g_CommandList->Close() >> chk;
+    //CheckRaytracingSupport();
     g_Fence = CreateFence(g_Device);
     g_FenceEvent = CreateEventHandle();
-
+    // Check the raytracing capabilities of the device 
+    CheckRaytracingSupport(); // Setup the acceleration structures (AS) for raytracing. When setting up 
+                              // geometry, each bottom-level AS has its own transform matrix. 
+    CreateAccelerationStructures(); // Command lists are created in the recording state, but there is 
+                                    // nothing to record yet. The main loop expects it to be closed, so 
+                                    // close it now. 
+    g_CommandList->Close() >> chk;
     g_IsInitialized = true;
 }
-//first fix minmax and char conversions that do not work
-//first create a window then create a renderer called graphics which loads the pipline and then handle messages where one of them calls update and render on our thing
+void Graphics::CheckRaytracingSupport()
+{
 
+
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS5 options5 = {};
+    g_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &options5, sizeof(options5)) >> chk;
+    if (options5.RaytracingTier < D3D12_RAYTRACING_TIER_1_0) throw std::runtime_error("Raytracing not supported on device");
+}
+
+
+
+
+Graphics::AccelerationStructureBuffers
+Graphics::CreateBottomLevelAS(std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vVertexBuffers) {
+    nv_helpers_dx12::BottomLevelASGenerator bottomLevelAS; // Adding all vertex buffers and not transforming their position. 
+    for (const auto &buffer : vVertexBuffers) { bottomLevelAS.AddVertexBuffer(buffer.first.Get(), 0, buffer.second, sizeof(Vertex), 0, 0); } // The AS build requires some scratch space to store temporary information. 
+                                                                                                                                             // The amount of scratch memory is dependent on the scene complexity. 
+    UINT64 scratchSizeInBytes = 0; 
+                                                                                                                                             // The final AS also needs to be stored in addition to the existing vertex 
+                                                                                                                                             // buffers. It size is also dependent on the scene complexity. 
+    UINT64 resultSizeInBytes = 0; bottomLevelAS.ComputeASBufferSizes(g_Device.Get(), false, &scratchSizeInBytes, &resultSizeInBytes); // Once the sizes are obtained, the application is responsible for allocating 
+                                                                                                                                      // the necessary buffers. Since the entire generation will be done on the GPU, 
+                                                                                                                                      // we can directly allocate those on the default heap 
+    AccelerationStructureBuffers buffers; 
+    buffers.pScratch = nv_helpers_dx12::CreateBuffer( g_Device.Get(), scratchSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON, nv_helpers_dx12::kDefaultHeapProps); 
+    buffers.pResult = nv_helpers_dx12::CreateBuffer( g_Device.Get(), resultSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, nv_helpers_dx12::kDefaultHeapProps); 
+    // Build the acceleration structure. Note that this call integrates a barrier 
+    // on the generated AS, so that it can be used to compute a top-level AS right 
+    // after this method.
+    bottomLevelAS.Generate(g_CommandList.Get(), buffers.pScratch.Get(), buffers.pResult.Get(), false, nullptr); 
+    return buffers;
+}
+void Graphics::CreateTopLevelAS(const std::vector<std::pair<ComPtr<ID3D12Resource>, DirectX::XMMATRIX>>& instances) { // Gather all the instances into the builder helper 
+    for (size_t i = 0; i < instances.size(); i++) { m_topLevelASGenerator.AddInstance(instances[i].first.Get(), instances[i].second, static_cast<UINT>(i), static_cast<UINT>(0)); } 
+    // As for the bottom-level AS, the building the AS requires some scratch space 
+    // to store temporary data in addition to the actual AS. In the case of the 
+    // top-level AS, the instance descriptors also need to be stored in GPU 
+    // memory. This call outputs the memory requirements for each (scratch, 
+    // results, instance descriptors) so that the application can allocate the 
+    // corresponding memory 
+    UINT64 scratchSize, resultSize, instanceDescsSize; m_topLevelASGenerator.ComputeASBufferSizes(g_Device.Get(), true, &scratchSize, &resultSize, &instanceDescsSize);
+    // Create the scratch and result buffers. Since the build is all done on GPU, 
+    // those can be allocated on the default heap 
+    m_topLevelASBuffers.pScratch = nv_helpers_dx12::CreateBuffer(g_Device.Get(), scratchSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nv_helpers_dx12::kDefaultHeapProps);
+    m_topLevelASBuffers.pResult = nv_helpers_dx12::CreateBuffer(g_Device.Get(), resultSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, nv_helpers_dx12::kDefaultHeapProps);
+    // The buffer describing the instances: ID, shader binding information, 
+    // matrices ... Those will be copied into the buffer by the helper through 
+    // mapping, so the buffer has to be allocated on the upload heap. 
+    m_topLevelASBuffers.pInstanceDesc = nv_helpers_dx12::CreateBuffer(g_Device.Get(), instanceDescsSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, nv_helpers_dx12::kUploadHeapProps);
+    // After all the buffers are allocated, or if only an update is required, we 
+    // // can build the acceleration structure. Note that in the case of the update 
+    // we also pass the existing AS as the 'previous' AS, so that it can be 
+    // refitted in place. 
+    m_topLevelASGenerator.Generate(g_CommandList.Get(), m_topLevelASBuffers.pScratch.Get(), m_topLevelASBuffers.pResult.Get(), m_topLevelASBuffers.pInstanceDesc.Get());
+}
+
+void Graphics::CreateAccelerationStructures() {
+    // Build the bottom AS from the Triangle vertex buffer 
+    AccelerationStructureBuffers bottomLevelBuffers = CreateBottomLevelAS({{g_vertexBuffer.Get(), 3}}); 
+    // Just one instance for now 
+    m_instances = {{bottomLevelBuffers.pResult, XMMatrixIdentity()}}; CreateTopLevelAS(m_instances); 
+    // Flush the command list and wait for it to finish 
+    g_CommandList->Close(); ID3D12CommandList *ppCommandLists[] = { g_CommandList.Get()};
+    g_CommandQueue->ExecuteCommandLists(1, ppCommandLists);
+    g_FenceValue ++;
+    g_CommandQueue->Signal(g_Fence.Get(), g_FenceValue);
+    g_Fence->SetEventOnCompletion(g_FenceValue, g_FenceEvent);
+    WaitForSingleObject(g_FenceEvent, INFINITE);
+    // Once the command list is finished executing, reset it to be reused for 
+    // rendering 
+    g_CommandList->Reset(g_CommandAllocators[0].Get(), g_pipelineState.Get()) >> chk;//I have too many backbuffers FRANK
+    // Store the AS buffers. The rest of the buffers will be released once we exit // the function 
+    m_bottomLevelAS = bottomLevelBuffers.pResult;
+}
