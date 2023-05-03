@@ -178,6 +178,7 @@
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="ProgramExecution.cpp" />
     <ClCompile Include="RaytracingPipelineGenerator.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RootSignatureGenerator.cpp" />
     <ClCompile Include="ShaderBindingTableGenerator.cpp" />
     <ClCompile Include="TopLevelASGenerator.cpp" />
@@ -189,6 +190,7 @@
     <ClInclude Include="BottomLevelASGenerator.h" />
     <ClInclude Include="Channel.h" />
     <ClInclude Include="ChiliException.h" />
+    <ClInclude Include="CompiledShaders\Raytracing.hlsl.h" />
     <ClInclude Include="d3d12.h" />
     <ClInclude Include="d3d12compatibility.h" />
     <ClInclude Include="d3d12sdklayers.h" />
@@ -220,12 +222,17 @@
     <ClInclude Include="GraphicsError.h" />
     <ClInclude Include="GraphicsThrowMacros.h" />
     <ClInclude Include="HighIncWindows.h" />
+    <ClInclude Include="HlslCompat.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="Mouse.h" />
+    <ClInclude Include="PerformanceTimers.h" />
     <ClInclude Include="Policy.h" />
     <ClInclude Include="ProgramExecution.h" />
+    <ClInclude Include="RayTracingHlslCompat.h" />
     <ClInclude Include="RaytracingPipelineGenerator.h" />
+    <ClInclude Include="RaytracingSceneDefines.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="RootSignatureGenerator.h" />
     <ClInclude Include="ShaderBindingTableGenerator.h" />
@@ -241,9 +248,15 @@
     <Image Include="LysIcon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="AnalyticPrimitives.hlsli" />
     <None Include="DXGetErrorDescription.inl" />
     <None Include="DXGetErrorString.inl" />
     <None Include="DXTrace.inl" />
+    <None Include="ProceduralPrimitivesLibrary.hlsli" />
+    <None Include="RaytracingShaderHelper.hlsli" />
+    <None Include="SignedDistanceFractals.hlsli" />
+    <None Include="SignedDistancePrimitives.hlsli" />
+    <None Include="VolumetricPrimitives.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="d3d12.idl" />
@@ -251,6 +264,9 @@
     <Midl Include="d3d12sdklayers.idl" />
     <Midl Include="d3d12video.idl" />
     <Midl Include="d3dcommon.idl" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Raytracing.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

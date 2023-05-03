@@ -1,16 +1,16 @@
 
 #pragma once
 
-#include "HighIncWindows.h"
-
 // DirectX 12 specific headers.
-#pragma warning(push, 0)
 #include "d3dx12.h"
-#pragma warning(pop)
 
 #include <dxgi1_6.h>
+
 #include <d3dcompiler.h>
+#include "RaytracingSceneDefines.h"
 #include <DirectXMath.h>
+
+
 
 //memory management
 
@@ -31,10 +31,61 @@
 
 #include <dxcapi.h>
 #include <vector>
-#include "TopLevelASGenerator.h"
+
+
+#define SizeOfInUint32(obj) ((sizeof(obj) - 1) / sizeof(UINT32) + 1)
+
+
+#define MAX_RAY_RECURSION_DEPTH 3  
 
 
 
+const wchar_t* c_hitGroupNames_TriangleGeometry[] =
+{
+    L"MyHitGroup_Triangle", L"MyHitGroup_Triangle_ShadowRay"
+};
+const wchar_t* c_hitGroupNames_AABBGeometry[][RayType::Count] =
+{
+    { L"MyHitGroup_AABB_AnalyticPrimitive", L"MyHitGroup_AABB_AnalyticPrimitive_ShadowRay" },
+    { L"MyHitGroup_AABB_VolumetricPrimitive", L"MyHitGroup_AABB_VolumetricPrimitive_ShadowRay" },
+    { L"MyHitGroup_AABB_SignedDistancePrimitive", L"MyHitGroup_AABB_SignedDistancePrimitive_ShadowRay" },
+};
+const wchar_t* c_raygenShaderName = L"MyRaygenShader";
+const wchar_t* c_intersectionShaderNames[] =
+{
+    L"MyIntersectionShader_AnalyticPrimitive",
+    L"MyIntersectionShader_VolumetricPrimitive",
+    L"MyIntersectionShader_SignedDistancePrimitive",
+};
+
+
+// Attributes per primitive type.
+struct PrimitiveConstantBuffer
+{
+    XMFLOAT4 albedo;
+    float reflectanceCoef;
+    float diffuseCoef;
+    float specularCoef;
+    float specularPower;
+    float stepScale;                      // Step scale for ray marching of signed distance primitives. 
+                                          // - Some object transformations don't preserve the distances and 
+                                          //   thus require shorter steps.
+    XMFLOAT3 padding;
+};
+
+// Attributes per primitive instance.
+struct PrimitiveInstanceConstantBuffer
+{
+    UINT instanceIndex;
+    UINT primitiveType; // Procedural primitive type
+};
+
+// Dynamic attributes per primitive instance.
+struct PrimitiveInstancePerFrameBuffer
+{
+    XMMATRIX localSpaceToBottomLevelAS;   // Matrix from local primitive space to bottom-level object space.
+    XMMATRIX bottomLevelASToLocalSpace;   // Matrix from bottom-level object space to local primitive space.
+};
 
 
 
@@ -96,6 +147,15 @@ public:
         AccelerationStructureBuffers CreateBottomLevelAS(std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vVertexBuffers);
         void CreateTopLevelAS(const std::vector<std::pair<ComPtr<ID3D12Resource>, DirectX::XMMATRIX>>& instances);
         void CreateAccelerationStructures();
+        void CreateRaytracingInterfaces();
+        void SerializeAndCreateRaytracingRootSignature(D3D12_ROOT_SIGNATURE_DESC& desc, ComPtr<ID3D12RootSignature>* rootSig);
+        void CreateAuxilaryDeviceResources();
+        void CreateRootSignatures();
+        void CreateHitGroupSubobjects(CD3DX12_STATE_OBJECT_DESC* raytracingPipeline);
+        void CreateDxilLibrarySubobject(CD3DX12_STATE_OBJECT_DESC* raytracingPipeline);
+        void CreateLocalRootSignatureSubobjects(CD3DX12_STATE_OBJECT_DESC* raytracingPipeline);
+        void CreateRaytracingPipelineStateObject();
+        void CreateDescriptorHeap();
     //};
 
 
@@ -119,7 +179,7 @@ public:
         ComPtr<IDXGISwapChain4> swapChain, ComPtr<ID3D12DescriptorHeap> descriptorHeap);
     ComPtr<ID3D12CommandAllocator> CreateCommandAllocator(ComPtr<ID3D12Device5> device,
         D3D12_COMMAND_LIST_TYPE type);
-    ComPtr<ID3D12GraphicsCommandList4> CreateCommandList(ComPtr<ID3D12Device5> device,
+    ComPtr<ID3D12GraphicsCommandList5> CreateCommandList(ComPtr<ID3D12Device5> device,
         ComPtr<ID3D12CommandAllocator> commandAllocator, D3D12_COMMAND_LIST_TYPE type);
     ComPtr<ID3D12Fence> CreateFence(ComPtr<ID3D12Device5> device);
     HANDLE CreateEventHandle();
@@ -157,10 +217,12 @@ private:
     //Pipeline assets:
 
     ComPtr<ID3D12Device5> g_Device;
+    ComPtr<ID3D12Device> g_GIDevice;
     ComPtr<ID3D12CommandQueue> g_CommandQueue;
     ComPtr<IDXGISwapChain4> g_SwapChain;
     ComPtr<ID3D12Resource> g_BackBuffers[g_NumFrames];
-    ComPtr<ID3D12GraphicsCommandList4> g_CommandList;
+    ComPtr<ID3D12GraphicsCommandList5> g_CommandList;
+    ComPtr<ID3D12GraphicsCommandList> g_GICommandList;
     ComPtr<ID3D12CommandAllocator> g_CommandAllocators[g_NumFrames];
     ComPtr<ID3D12DescriptorHeap> g_RTVDescriptorHeap;
     UINT g_RTVDescriptorSize;
@@ -169,6 +231,9 @@ private:
     ComPtr<ID3D12Resource> g_vertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW g_vertexBufferView;
     float g_aspectRatio = 10;
+    // Root signatures
+    ComPtr<ID3D12RootSignature> g_raytracingGlobalRootSignature;
+    ComPtr<ID3D12RootSignature> g_raytracingLocalRootSignature[LocalRootSignature::Type::Count];
 
     ComPtr<ID3D12Fence> g_Fence;
     uint64_t g_FenceValue = 0;
@@ -181,7 +246,7 @@ private:
     bool g_VSync = true;
     bool g_TearingSupported = false;// By default, use windowed mode.// Can be toggled with the Alt+Enter or F11
     bool g_Fullscreen = false;
-
+    static const wchar_t* c_closestHitShaderNames[GeometryType::Count];
     void CheckRaytracingSupport();
 
     void LoadPipeline();

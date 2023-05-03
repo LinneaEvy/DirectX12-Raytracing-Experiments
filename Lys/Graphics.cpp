@@ -3,10 +3,16 @@
 #include "dxerr.h"
 #include "GraphicsError.h"
 #include <tchar.h>
-#include <Winuser.h>
+//#include <Winuser.h>
+//#include "DXRHelper.h"
 
-#include "DXRHelper.h"
+#include "CompiledShaders\Raytracing.hlsl.h"
+#include "TopLevelASGenerator.h"
 #include "BottomLevelASGenerator.h"
+
+
+#define NAME_D3D12_OBJECT(x) SetName((x).Get(), L#x)
+//#include "CompiledShaders\Raytracing.hlsl.h"FRANK
 // Graphics exception stuff
 Graphics::HrException::HrException(int line, const char* file, HRESULT hr, std::vector<std::string> infoMsgs) noexcept
     :
@@ -119,44 +125,13 @@ std::string Graphics::InfoException::GetErrorInfo() const noexcept
 
 Graphics::Graphics(HWND hWnd, UINT width, UINT height, std::wstring name)
 {
-    //SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-
-    // Window class name. Used for registering / creating the window.
-    //const wchar_t* windowClassName = L"DX12WindowClass";
-    //ParseCommandLineArguments();
+    
     EnableDebugLayer();
     g_TearingSupported = CheckTearingSupport();
     g_hWnd = hWnd;
     g_ClientWidth = width;
     g_ClientHeight = height;
-    // Windows 10 Creators update adds Per Monitor V2 DPI awareness context.
-    // Using this awareness context allows the client area of the window 
-    // to achieve 100% scaling while still allowing non-client window content to 
-    // be rendered in a DPI sensitive fashion.
-    
-
-    //RegisterWindowClass(hInstance, windowClassName);
-    //g_hWnd = CreateWindow(windowClassName, hInstance, L"Learning DirectX 12", g_ClientWidth, g_ClientHeight);
-    
-
     loadPipeline();
-    /*
-    ::ShowWindow(g_hWnd, SW_SHOW);
-
-    MSG msg = {};
-    while (msg.message != WM_QUIT)
-    {
-        if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-        {
-            ::TranslateMessage(&msg);
-            ::DispatchMessage(&msg);
-        }
-    }
-    // Make sure the command queue has finished all commands before closing.
-    */
-
-
-
 }
 
 Graphics::~Graphics()
@@ -386,10 +361,10 @@ ComPtr<ID3D12CommandAllocator> Graphics::CreateCommandAllocator(ComPtr<ID3D12Dev
     return commandAllocator;
 }
 
-ComPtr<ID3D12GraphicsCommandList4> Graphics::CreateCommandList(ComPtr<ID3D12Device5> device,
+ComPtr<ID3D12GraphicsCommandList5> Graphics::CreateCommandList(ComPtr<ID3D12Device5> device,
     ComPtr<ID3D12CommandAllocator> commandAllocator, D3D12_COMMAND_LIST_TYPE type)
 {
-    ComPtr<ID3D12GraphicsCommandList4> commandList;
+    ComPtr<ID3D12GraphicsCommandList5> commandList;
     device->CreateCommandList(0, type, commandAllocator.Get(), g_pipelineState.Get(), IID_PPV_ARGS(&commandList)) >> chk;
 
     //commandList->Close() >> chk;
@@ -592,6 +567,10 @@ void Graphics::SetFullscreen(bool fullscreen)
 }
 
 void Graphics::loadPipeline() {
+
+
+
+
     // Initialize the global window rect variable.
     ::GetWindowRect(g_hWnd, &g_WindowRect);
     ComPtr<IDXGIAdapter1> dxgiAdapter1 = GetAdapter(false);
@@ -660,14 +639,46 @@ void Graphics::loadPipeline() {
     //CheckRaytracingSupport();
     g_Fence = CreateFence(g_Device);
     g_FenceEvent = CreateEventHandle();
+    g_CommandList->Close() >> chk;
+    g_IsInitialized = true;
+
+    CreateAuxilaryDeviceResources();//FRANK
+
+    // Initialize raytracing pipeline.
+
+    // Create raytracing interfaces: raytracing device and commandlist.
+    CreateRaytracingInterfaces();
+
+    // Create root signatures for the shaders.
+    CreateRootSignatures();
+
+    // Create a raytracing pipeline state object which defines the binding of shaders, state and resources to be used during raytracing.
+    CreateRaytracingPipelineStateObject();
+
+    // Create a heap for descriptors.
+    CreateDescriptorHeap();
+
+    // Build geometry to be used in the sample.
+    //BuildGeometry();
+
     // Check the raytracing capabilities of the device 
     CheckRaytracingSupport(); // Setup the acceleration structures (AS) for raytracing. When setting up 
                               // geometry, each bottom-level AS has its own transform matrix. 
     CreateAccelerationStructures(); // Command lists are created in the recording state, but there is 
                                     // nothing to record yet. The main loop expects it to be closed, so 
                                     // close it now. 
-    g_CommandList->Close() >> chk;
-    g_IsInitialized = true;
+
+    //CreateConstantBuffers();
+
+    // Create AABB primitive attribute buffers.
+    //CreateAABBPrimitiveAttributesBuffers();
+
+    // Build shader tables, which define shaders and their local root arguments.
+    //BuildShaderTables();
+
+    // Create an output 2D texture to store the raytracing result to.
+    //CreateRaytracingOutputResource();
+    
 }
 void Graphics::CheckRaytracingSupport()
 {
@@ -743,4 +754,227 @@ void Graphics::CreateAccelerationStructures() {
     g_CommandList->Reset(g_CommandAllocators[0].Get(), g_pipelineState.Get()) >> chk;//I have too many backbuffers FRANK
     // Store the AS buffers. The rest of the buffers will be released once we exit // the function 
     m_bottomLevelAS = bottomLevelBuffers.pResult;
+}
+
+void Graphics::CreateRaytracingInterfaces()
+{
+    //auto device = m_deviceResources->GetD3DDevice();
+    //auto commandList = m_deviceResources->GetCommandList();
+    //g_device is their device from the main graphics and GI device from external recource
+    g_Device->QueryInterface(IID_PPV_ARGS(&g_GIDevice)) >> chk;
+    g_CommandList->QueryInterface(IID_PPV_ARGS(&g_CommandList)) >> chk;
+}
+
+void Graphics::SerializeAndCreateRaytracingRootSignature(D3D12_ROOT_SIGNATURE_DESC& desc, ComPtr<ID3D12RootSignature>* rootSig)
+{
+    //auto device = m_deviceResources->GetD3DDevice();
+    ComPtr<ID3DBlob> blob;
+    ComPtr<ID3DBlob> error;
+
+    D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &blob, &error) >> chk, error ? static_cast<wchar_t*>(error->GetBufferPointer()) : nullptr ;
+    g_Device->CreateRootSignature(1, blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(&(*rootSig))) >> chk;
+}
+void Graphics::CreateAuxilaryDeviceResources()
+{
+    //auto device = g_deviceResources->GetD3DDevice();
+    //auto commandQueue = m_deviceResources->GetCommandQueue();
+
+    //for (auto& gpuTimer : m_gpuTimers)
+    {
+        //gpuTimer.RestoreDevice(g_Device, g_CommandQueue, g_NumFrames);
+    }
+}
+
+void Graphics::CreateRootSignatures()
+{
+    //auto device = m_deviceResources->GetD3DDevice();
+
+    // Global Root Signature
+    // This is a root signature that is shared across all raytracing shaders invoked during a DispatchRays() call.
+    {
+        CD3DX12_DESCRIPTOR_RANGE ranges[2]; // Perfomance TIP: Order from most frequent to least frequent.
+        ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0);  // 1 output texture
+        ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 1);  // 2 static index and vertex buffers.
+
+        CD3DX12_ROOT_PARAMETER rootParameters[GlobalRootSignature::Slot::Count];
+        rootParameters[GlobalRootSignature::Slot::OutputView].InitAsDescriptorTable(1, &ranges[0]);
+        rootParameters[GlobalRootSignature::Slot::AccelerationStructure].InitAsShaderResourceView(0);
+        rootParameters[GlobalRootSignature::Slot::SceneConstant].InitAsConstantBufferView(0);
+        rootParameters[GlobalRootSignature::Slot::AABBattributeBuffer].InitAsShaderResourceView(3);
+        rootParameters[GlobalRootSignature::Slot::VertexBuffers].InitAsDescriptorTable(1, &ranges[1]);
+        CD3DX12_ROOT_SIGNATURE_DESC globalRootSignatureDesc(ARRAYSIZE(rootParameters), rootParameters);
+        SerializeAndCreateRaytracingRootSignature(globalRootSignatureDesc, &g_raytracingGlobalRootSignature);
+    }
+
+    // Local Root Signature
+    // This is a root signature that enables a shader to have unique arguments that come from shader tables.
+    {
+        // Triangle geometry
+        {
+            namespace RootSignatureSlots = LocalRootSignature::Triangle::Slot;
+            CD3DX12_ROOT_PARAMETER rootParameters[RootSignatureSlots::Count];
+            rootParameters[RootSignatureSlots::MaterialConstant].InitAsConstants(SizeOfInUint32(PrimitiveConstantBuffer), 1);
+
+            CD3DX12_ROOT_SIGNATURE_DESC localRootSignatureDesc(ARRAYSIZE(rootParameters), rootParameters);
+            localRootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
+            SerializeAndCreateRaytracingRootSignature(localRootSignatureDesc, &g_raytracingLocalRootSignature[LocalRootSignature::Type::Triangle]);
+        }
+
+        // AABB geometry
+        {
+            namespace RootSignatureSlots = LocalRootSignature::AABB::Slot;
+            CD3DX12_ROOT_PARAMETER rootParameters[RootSignatureSlots::Count];
+            rootParameters[RootSignatureSlots::MaterialConstant].InitAsConstants(SizeOfInUint32(PrimitiveConstantBuffer), 1);
+            rootParameters[RootSignatureSlots::GeometryIndex].InitAsConstants(SizeOfInUint32(PrimitiveInstanceConstantBuffer), 2);
+
+            CD3DX12_ROOT_SIGNATURE_DESC localRootSignatureDesc(ARRAYSIZE(rootParameters), rootParameters);
+            localRootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
+            SerializeAndCreateRaytracingRootSignature(localRootSignatureDesc, &g_raytracingLocalRootSignature[LocalRootSignature::Type::AABB]);
+        }
+    }
+}
+const wchar_t* Graphics::c_closestHitShaderNames[] =
+{
+    L"MyClosestHitShader_Triangle",
+    L"MyClosestHitShader_AABB",
+};
+void Graphics::CreateHitGroupSubobjects(CD3DX12_STATE_OBJECT_DESC* raytracingPipeline)
+{
+    // Triangle geometry hit groups
+    {
+        for (UINT rayType = 0; rayType < RayType::Count; rayType++)
+        {
+            auto hitGroup = raytracingPipeline->CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
+            if (rayType == RayType::Radiance)
+            {
+                hitGroup->SetClosestHitShaderImport(c_closestHitShaderNames[GeometryType::Triangle]);
+            }
+            hitGroup->SetHitGroupExport(c_hitGroupNames_TriangleGeometry[rayType]);
+            hitGroup->SetHitGroupType(D3D12_HIT_GROUP_TYPE_TRIANGLES);
+        }
+    }
+
+    // AABB geometry hit groups
+    {
+        // Create hit groups for each intersection shader.
+        for (UINT t = 0; t < IntersectionShaderType::Count; t++)
+            for (UINT rayType = 0; rayType < RayType::Count; rayType++)
+            {
+                auto hitGroup = raytracingPipeline->CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
+                hitGroup->SetIntersectionShaderImport(c_intersectionShaderNames[t]);
+                if (rayType == RayType::Radiance)
+                {
+                    hitGroup->SetClosestHitShaderImport(c_closestHitShaderNames[GeometryType::AABB]);
+                }
+                hitGroup->SetHitGroupExport(c_hitGroupNames_AABBGeometry[t][rayType]);
+                hitGroup->SetHitGroupType(D3D12_HIT_GROUP_TYPE_PROCEDURAL_PRIMITIVE);
+            }
+    }
+}
+
+void Graphics::CreateDxilLibrarySubobject(CD3DX12_STATE_OBJECT_DESC* raytracingPipeline)
+{
+    auto lib = raytracingPipeline->CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
+    //D3D12_SHADER_BYTECODE libdxil = CD3DX12_SHADER_BYTECODE((void*)g_pRaytracing, ARRAYSIZE(g_pRaytracing));FRANK
+    //lib->SetDXILLibrary(&libdxil);FRANK
+    // Use default shader exports for a DXIL library/collection subobject ~ surface all shaders.
+}
+
+// Local root signature and shader association
+// This is a root signature that enables a shader to have unique arguments that come from shader tables.
+void Graphics::CreateLocalRootSignatureSubobjects(CD3DX12_STATE_OBJECT_DESC* raytracingPipeline)
+{
+    // Ray gen and miss shaders in this sample are not using a local root signature and thus one is not associated with them.
+
+    // Hit groups
+    // Triangle geometry
+    {
+        auto localRootSignature = raytracingPipeline->CreateSubobject<CD3DX12_LOCAL_ROOT_SIGNATURE_SUBOBJECT>();
+        localRootSignature->SetRootSignature(g_raytracingLocalRootSignature[LocalRootSignature::Type::Triangle].Get());
+        // Shader association
+        auto rootSignatureAssociation = raytracingPipeline->CreateSubobject<CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT>();
+        rootSignatureAssociation->SetSubobjectToAssociate(*localRootSignature);
+        rootSignatureAssociation->AddExports(c_hitGroupNames_TriangleGeometry);
+    }
+
+    // AABB geometry
+    {
+        auto localRootSignature = raytracingPipeline->CreateSubobject<CD3DX12_LOCAL_ROOT_SIGNATURE_SUBOBJECT>();
+        localRootSignature->SetRootSignature(g_raytracingLocalRootSignature[LocalRootSignature::Type::AABB].Get());
+        // Shader association
+        auto rootSignatureAssociation = raytracingPipeline->CreateSubobject<CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT>();
+        rootSignatureAssociation->SetSubobjectToAssociate(*localRootSignature);
+        for (auto& hitGroupsForIntersectionShaderType : c_hitGroupNames_AABBGeometry)
+        {
+            //rootSignatureAssociation->AddExports(hitGroupsForIntersectionShaderType);FRANK
+        }
+    }
+}
+
+void Graphics::CreateRaytracingPipelineStateObject()
+{
+    // Create 18 subobjects that combine into a RTPSO:
+    // Subobjects need to be associated with DXIL exports (i.e. shaders) either by way of default or explicit associations.
+    // Default association applies to every exported shader entrypoint that doesn't have any of the same type of subobject associated with it.
+    // This simple sample utilizes default shader association except for local root signature subobject
+    // which has an explicit association specified purely for demonstration purposes.
+    // 1 - DXIL library
+    // 8 - Hit group types - 4 geometries (1 triangle, 3 aabb) x 2 ray types (ray, shadowRay)
+    // 1 - Shader config
+    // 6 - 3 x Local root signature and association
+    // 1 - Global root signature
+    // 1 - Pipeline config
+    CD3DX12_STATE_OBJECT_DESC raytracingPipeline{ D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE };
+
+    // DXIL library
+    CreateDxilLibrarySubobject(&raytracingPipeline);
+
+    // Hit groups
+    CreateHitGroupSubobjects(&raytracingPipeline);
+
+    // Shader config
+    // Defines the maximum sizes in bytes for the ray rayPayload and attribute structure.
+    auto shaderConfig = raytracingPipeline.CreateSubobject<CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
+    UINT payloadSize = sizeof(RayPayload) > sizeof(ShadowRayPayload) ? sizeof(RayPayload) : sizeof(ShadowRayPayload);
+    UINT attributeSize = sizeof(struct ProceduralPrimitiveAttributes);
+    shaderConfig->Config(payloadSize, attributeSize);
+
+    // Local root signature and shader association
+    // This is a root signature that enables a shader to have unique arguments that come from shader tables.
+    CreateLocalRootSignatureSubobjects(&raytracingPipeline);
+
+    // Global root signature
+    // This is a root signature that is shared across all raytracing shaders invoked during a DispatchRays() call.
+    auto globalRootSignature = raytracingPipeline.CreateSubobject<CD3DX12_GLOBAL_ROOT_SIGNATURE_SUBOBJECT>();
+    globalRootSignature->SetRootSignature(g_raytracingGlobalRootSignature.Get());
+
+    // Pipeline config
+    // Defines the maximum TraceRay() recursion depth.
+    auto pipelineConfig = raytracingPipeline.CreateSubobject<CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT>();
+    // PERFOMANCE TIP: Set max recursion depth as low as needed
+    // as drivers may apply optimization strategies for low recursion depths.
+    UINT maxRecursionDepth = MAX_RAY_RECURSION_DEPTH;
+    pipelineConfig->Config(maxRecursionDepth);
+
+    //PrintStateObjectDesc(raytracingPipeline);
+
+    // Create the state object.
+    g_Device->CreateStateObject(raytracingPipeline, IID_PPV_ARGS(&g_pipelineState)) >> chk;
+}
+void Graphics::CreateDescriptorHeap()
+{
+    //auto device = m_deviceResources->GetD3DDevice();
+
+    D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
+    // Allocate a heap for 6 descriptors:
+    // 2 - vertex and index  buffer SRVs
+    // 1 - raytracing output texture SRV
+    descriptorHeapDesc.NumDescriptors = 3;
+    descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+    descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+    descriptorHeapDesc.NodeMask = 0;
+    g_Device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&g_RTVDescriptorHeap));
+    //NAME_D3D12_OBJECT(g_RTVDescriptorHeap);FRANK
+
+    g_RTVDescriptorSize = g_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
