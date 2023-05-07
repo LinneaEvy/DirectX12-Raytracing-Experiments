@@ -1,17 +1,19 @@
 #pragma once
 #include "Graphics.h"
+
+#include <tchar.h>
+
 #include "dxerr.h"
 #include "GraphicsError.h"
-#include <tchar.h>
 //#include <Winuser.h>
-//#include "DXRHelper.h"
-
-#include "CompiledShaders\Raytracing.hlsl.h"
-#include "TopLevelASGenerator.h"
+#include <string>
+#include <unordered_map>
 #include "BottomLevelASGenerator.h"
+#include "DXRHelper.h"
+#include "CompiledShaders\Raytracing.hlsl.h"
 
 
-#define NAME_D3D12_OBJECT(x) SetName((x).Get(), L#x)
+#define NAME_D3D12_OBJECT(x) //SetName((x).Get(), L#x)
 //#include "CompiledShaders\Raytracing.hlsl.h"FRANK
 // Graphics exception stuff
 Graphics::HrException::HrException(int line, const char* file, HRESULT hr, std::vector<std::string> infoMsgs) noexcept
@@ -30,7 +32,10 @@ Graphics::HrException::HrException(int line, const char* file, HRESULT hr, std::
     {
         info.pop_back();
     }
-}
+}const wchar_t* Graphics::c_missShaderNames[] =
+{
+    L"MyMissShader", L"MyMissShader_ShadowRay"
+};
 
 const char* Graphics::HrException::what() const noexcept
 {
@@ -120,7 +125,29 @@ std::string Graphics::InfoException::GetErrorInfo() const noexcept
 {
     return info;
 }
+void Graphics::GpuUploadBuffer::Allocate(ID3D12Device* device, UINT bufferSize, LPCWSTR resourceName)
+{
+    auto uploadHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 
+    auto bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
+    device->CreateCommittedResource(
+        &uploadHeapProperties,
+        D3D12_HEAP_FLAG_NONE,
+        &bufferDesc,
+        D3D12_RESOURCE_STATE_GENERIC_READ,
+        nullptr,
+        IID_PPV_ARGS(&m_resource)) >> chk;
+    m_resource->SetName(resourceName);
+}
+
+uint8_t* Graphics::GpuUploadBuffer::MapCpuWriteOnly()
+{
+    uint8_t* mappedData;
+    // We don't unmap this until the app closes. Keeping buffer mapped for the lifetime of the resource is okay.
+    CD3DX12_RANGE readRange(0, 0);        // We do not intend to read from this resource on the CPU.
+    m_resource->Map(0, &readRange, reinterpret_cast<void**>(&mappedData)) >> chk;
+    return mappedData;
+}
 
 
 Graphics::Graphics(HWND hWnd, UINT width, UINT height, std::wstring name)
@@ -668,16 +695,16 @@ void Graphics::loadPipeline() {
                                     // nothing to record yet. The main loop expects it to be closed, so 
                                     // close it now. 
 
-    //CreateConstantBuffers();
+    CreateConstantBuffers();
 
     // Create AABB primitive attribute buffers.
-    //CreateAABBPrimitiveAttributesBuffers();
+    CreateAABBPrimitiveAttributesBuffers();
 
     // Build shader tables, which define shaders and their local root arguments.
-    //BuildShaderTables();
+    BuildShaderTables();
 
     // Create an output 2D texture to store the raytracing result to.
-    //CreateRaytracingOutputResource();
+    CreateRaytracingOutputResource();
     
 }
 void Graphics::CheckRaytracingSupport()
@@ -977,4 +1004,188 @@ void Graphics::CreateDescriptorHeap()
     //NAME_D3D12_OBJECT(g_RTVDescriptorHeap);FRANK
 
     g_RTVDescriptorSize = g_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+}
+
+void Graphics::CreateConstantBuffers()
+{
+    //auto device = m_deviceResources->GetD3DDevice();
+    //auto frameCount = m_deviceResources->GetBackBufferCount();
+
+    g_sceneCB.Create(g_Device.Get(), g_NumFrames, L"Scene Constant Buffer");
+}
+
+void Graphics::CreateAABBPrimitiveAttributesBuffers()
+{
+    //auto device = m_deviceResources->GetD3DDevice();
+    //auto frameCount = m_deviceResources->GetBackBufferCount();
+    g_aabbPrimitiveAttributeBuffer.Create(g_Device.Get(), IntersectionShaderType::TotalPrimitiveCount, g_NumFrames, L"AABB primitive attributes");
+}
+
+void Graphics::BuildShaderTables()
+{
+    //auto device = m_deviceResources->GetD3DDevice();
+
+    void* rayGenShaderID;
+    void* missShaderIDs[RayType::Count];
+    void* hitGroupShaderIDs_TriangleGeometry[RayType::Count];
+    void* hitGroupShaderIDs_AABBGeometry[IntersectionShaderType::Count][RayType::Count];
+
+    // A shader name look-up table for shader table debug print out.
+    std::unordered_map<void*, std::wstring> shaderIdToStringMap;
+
+    auto GetShaderIDs = [&](auto* stateObjectProperties)
+    {
+        rayGenShaderID = stateObjectProperties->GetShaderIdentifier(c_raygenShaderName);
+        shaderIdToStringMap[rayGenShaderID] = c_raygenShaderName;
+
+        for (UINT i = 0; i < RayType::Count; i++)
+        {
+            missShaderIDs[i] = stateObjectProperties->GetShaderIdentifier(c_missShaderNames[i]);
+            shaderIdToStringMap[missShaderIDs[i]] = c_missShaderNames[i];
+        }
+        for (UINT i = 0; i < RayType::Count; i++)
+        {
+            hitGroupShaderIDs_TriangleGeometry[i] = stateObjectProperties->GetShaderIdentifier(c_hitGroupNames_TriangleGeometry[i]);
+            shaderIdToStringMap[hitGroupShaderIDs_TriangleGeometry[i]] = c_hitGroupNames_TriangleGeometry[i];
+        }
+        for (UINT r = 0; r < IntersectionShaderType::Count; r++)
+            for (UINT c = 0; c < RayType::Count; c++)        
+            {
+                hitGroupShaderIDs_AABBGeometry[r][c] = stateObjectProperties->GetShaderIdentifier(c_hitGroupNames_AABBGeometry[r][c]); 
+                shaderIdToStringMap[hitGroupShaderIDs_AABBGeometry[r][c]] = c_hitGroupNames_AABBGeometry[r][c];
+            }
+    };
+
+    // Get shader identifiers.
+    UINT shaderIDSize;
+    {
+        ComPtr<ID3D12StateObjectProperties> stateObjectProperties;
+        g_pipelineState.As(&stateObjectProperties) >> chk;
+        GetShaderIDs(stateObjectProperties.Get());
+        shaderIDSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
+    }
+
+    /*************--------- Shader table layout -------*******************
+    | --------------------------------------------------------------------
+    | Shader table - HitGroupShaderTable: 
+    | [0] : MyHitGroup_Triangle
+    | [1] : MyHitGroup_Triangle_ShadowRay
+    | [2] : MyHitGroup_AABB_AnalyticPrimitive
+    | [3] : MyHitGroup_AABB_AnalyticPrimitive_ShadowRay 
+    | ...
+    | [6] : MyHitGroup_AABB_VolumetricPrimitive
+    | [7] : MyHitGroup_AABB_VolumetricPrimitive_ShadowRay
+    | [8] : MyHitGroup_AABB_SignedDistancePrimitive 
+    | [9] : MyHitGroup_AABB_SignedDistancePrimitive_ShadowRay,
+    | ...
+    | [20] : MyHitGroup_AABB_SignedDistancePrimitive
+    | [21] : MyHitGroup_AABB_SignedDistancePrimitive_ShadowRay
+    | --------------------------------------------------------------------
+    **********************************************************************/
+
+     // RayGen shader table.
+    {
+        UINT numShaderRecords = 1;
+        UINT shaderRecordSize = shaderIDSize; // No root arguments
+        
+        ShaderTable rayGenShaderTable((g_GIDevice.Get()), numShaderRecords, shaderRecordSize, L"RayGenShaderTable" );
+        rayGenShaderTable.push_back(ShaderRecord(rayGenShaderID, shaderRecordSize, nullptr, 0));
+        rayGenShaderTable.DebugPrint(shaderIdToStringMap);
+        g_rayGenShaderTable = rayGenShaderTable.GetResource();
+    }
+    
+    // Miss shader table.
+    {
+        UINT numShaderRecords = RayType::Count;
+        UINT shaderRecordSize = shaderIDSize; // No root arguments
+
+        ShaderTable missShaderTable(g_Device.Get(), numShaderRecords, shaderRecordSize, L"MissShaderTable");
+        for (UINT i = 0; i < RayType::Count; i++)
+        {
+            missShaderTable.push_back(ShaderRecord(missShaderIDs[i], shaderIDSize, nullptr, 0));
+        }
+        missShaderTable.DebugPrint(shaderIdToStringMap);
+        g_missShaderTableStrideInBytes = missShaderTable.GetShaderRecordSize();
+        g_missShaderTable = missShaderTable.GetResource();
+    }
+
+    // Hit group shader table.
+    {
+        UINT numShaderRecords = RayType::Count + IntersectionShaderType::TotalPrimitiveCount * RayType::Count;
+        UINT shaderRecordSize = shaderIDSize + LocalRootSignature::MaxRootArgumentsSize();
+        ShaderTable hitGroupShaderTable(g_Device.Get(), numShaderRecords, shaderRecordSize, L"HitGroupShaderTable");
+
+        // Triangle geometry hit groups.
+        {
+            LocalRootSignature::Triangle::RootArguments rootArgs;
+            rootArgs.materialCb = m_planeMaterialCB;
+
+            for (auto& hitGroupShaderID : hitGroupShaderIDs_TriangleGeometry)
+            {
+                hitGroupShaderTable.push_back(ShaderRecord(hitGroupShaderID, shaderIDSize, &rootArgs, sizeof(rootArgs)));
+            }
+        }
+      
+        // AABB geometry hit groups.
+        {
+            LocalRootSignature::AABB::RootArguments rootArgs;
+            UINT instanceIndex = 0;
+
+            // Create a shader record for each primitive.
+            for (UINT iShader = 0, instanceIndex = 0; iShader < IntersectionShaderType::Count; iShader++)
+            {
+                UINT numPrimitiveTypes = IntersectionShaderType::PerPrimitiveTypeCount(static_cast<IntersectionShaderType::Enum>(iShader));
+                
+                // Primitives for each intersection shader.
+                for (UINT primitiveIndex = 0; primitiveIndex < numPrimitiveTypes; primitiveIndex++, instanceIndex++)
+                {
+                    rootArgs.materialCb = m_aabbMaterialCB[instanceIndex];
+                    rootArgs.aabbCB.instanceIndex = instanceIndex;
+                    rootArgs.aabbCB.primitiveType = primitiveIndex;
+                    
+                    // Ray types.
+                    for (UINT r = 0; r < RayType::Count; r++)
+                    {
+                        auto& hitGroupShaderID = hitGroupShaderIDs_AABBGeometry[iShader][r];
+                        hitGroupShaderTable.push_back(ShaderRecord(hitGroupShaderID, shaderIDSize, &rootArgs, sizeof(rootArgs)));
+                    }
+                }
+            }
+        }
+        hitGroupShaderTable.DebugPrint(shaderIdToStringMap);
+        g_hitGroupShaderTableStrideInBytes = hitGroupShaderTable.GetShaderRecordSize();
+        g_hitGroupShaderTable = hitGroupShaderTable.GetResource();
+    }
+}
+UINT Graphics::AllocateDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE* cpuDescriptor, UINT descriptorIndexToUse)
+{
+    auto descriptorHeapCpuBase = g_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    if (descriptorIndexToUse >= g_RTVDescriptorHeap->GetDesc().NumDescriptors)
+    {
+        if(g_descriptorsAllocated > g_RTVDescriptorHeap->GetDesc().NumDescriptors) throw"ahhhh";
+        descriptorIndexToUse = g_descriptorsAllocated++;
+    }
+    *cpuDescriptor = CD3DX12_CPU_DESCRIPTOR_HANDLE(descriptorHeapCpuBase, descriptorIndexToUse, g_RTVDescriptorSize);
+    return descriptorIndexToUse;
+}
+
+void Graphics::CreateRaytracingOutputResource()
+{
+    //auto device = m_deviceResources->GetD3DDevice();
+    //auto backbufferFormat = m_deviceResources->GetBackBufferFormat();
+
+    // Create the output resource. The dimensions and format should match the swap-chain.
+    auto uavDesc = CD3DX12_RESOURCE_DESC::Tex2D(BackBufferFormat, g_ClientWidth, g_ClientHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+
+    auto defaultHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+    g_Device->CreateCommittedResource(
+        &defaultHeapProperties, D3D12_HEAP_FLAG_NONE, &uavDesc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&m_raytracingOutput)) >>chk;
+    NAME_D3D12_OBJECT(m_raytracingOutput);
+
+    D3D12_CPU_DESCRIPTOR_HANDLE uavDescriptorHandle;
+    m_raytracingOutputResourceUAVDescriptorHeapIndex = AllocateDescriptor(&uavDescriptorHandle, m_raytracingOutputResourceUAVDescriptorHeapIndex);
+    D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc = {};
+    UAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+    g_Device->CreateUnorderedAccessView(m_raytracingOutput.Get(), nullptr, &UAVDesc, uavDescriptorHandle);
+    m_raytracingOutputResourceUAVGpuDescriptor = CD3DX12_GPU_DESCRIPTOR_HANDLE(g_RTVDescriptorHeap->GetGPUDescriptorHandleForHeapStart(), m_raytracingOutputResourceUAVDescriptorHeapIndex, g_RTVDescriptorSize);
 }

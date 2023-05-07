@@ -1,3 +1,3 @@
-﻿E:\Root\Working\CppEngine\Lys\Lys\RaytracingHlslCompat.h(119,5-8): error X3000: syntax error: unexpected token 'enum'
+﻿E:\Root\Working\CppEngine\Lys\Lys\RaytracingShaderHelper.hlsli(91,12-27): error X3004: undeclared identifier 'WorldRayOrigin'
   
   compilation failed; no code produced

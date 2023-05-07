@@ -1,0 +1,3 @@
+﻿  failed to open file: E:\Root\Working\CppEngine\Lys\Lys\Raytracing.hlsl
+  compilation failed; no code produced
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppCommon.targets(1759,5): error MSB6006: "fxc.exe" exited with code 1.

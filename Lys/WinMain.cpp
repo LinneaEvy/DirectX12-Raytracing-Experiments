@@ -1,8 +1,10 @@
+
 #include "Window.h"
+#include "Graphics.h"
 #include <tchar.h>
 #include <iostream>
 
-#include "Graphics.h"
+
 #include "WindowsThrowMacros.h"
 
 
