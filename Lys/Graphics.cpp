@@ -185,11 +185,11 @@ ComPtr<IDXGIAdapter1> Graphics::GetAdapter(bool useWarp)
     CreateDXGIFactory2(createFactoryFlags, IID_PPV_ARGS(&dxgiFactory)) >> chk;
 
     ComPtr<IDXGIAdapter1> dxgiAdapter1;
-    //ComPtr<IDXGIAdapter4> dxgiAdapter4;
+    ComPtr<IDXGIAdapter4> dxgiAdapter4;
     if (useWarp)
     {
         dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&dxgiAdapter1)) >> chk;
-        //dxgiAdapter1.As(&dxgiAdapter4) >> chk;
+        dxgiAdapter1.As(&dxgiAdapter4) >> chk;
     }
     else
     {
@@ -204,16 +204,16 @@ ComPtr<IDXGIAdapter1> Graphics::GetAdapter(bool useWarp)
             // is favored.
             if ((dxgiAdapterDesc1.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) == 0 &&
                 SUCCEEDED(D3D12CreateDevice(dxgiAdapter1.Get(),
-                    D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), nullptr)) &&
+                    D3D_FEATURE_LEVEL_12_1, __uuidof(ID3D12Device), nullptr)) &&
                 dxgiAdapterDesc1.DedicatedVideoMemory > maxDedicatedVideoMemory)
             {
                 maxDedicatedVideoMemory = dxgiAdapterDesc1.DedicatedVideoMemory;
-                //dxgiAdapter1.As(&dxgiAdapter4) >> chk;
+                dxgiAdapter1.As(&dxgiAdapter4) >> chk;
             }
         }
     }
 
-    return dxgiAdapter1;
+    return dxgiAdapter4;
 }
 
 ComPtr<ID3D12Device5> Graphics::CreateDevice(ComPtr<IDXGIAdapter1> adapter)

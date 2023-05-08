@@ -7,8 +7,8 @@
 /* at Tue Jan 19 04:14:07 2038
  */
 /* Compiler settings for d3d12.idl:
-    Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 8.01.0622 
-    protocol : dce , ms_ext, c_ext, robust
+    Oicf, W1, Zp8, env=Win64 (32b run), target_arch=AMD64 8.01.0622 
+    protocol : all , ms_ext, c_ext, robust
     error checks: allocation ref bounds_check enum stub_data 
     VC __declspec() decoration level: 
          __declspec(uuid()), __declspec(selectany), __declspec(novtable)
@@ -4834,17 +4834,6 @@ EXTERN_C const IID IID_ID3D12Heap;
 
 
 
-D3D12_HEAP_DESC STDMETHODCALLTYPE ID3D12Heap_GetDesc_Proxy( 
-    ID3D12Heap * This);
-
-
-void __RPC_STUB ID3D12Heap_GetDesc_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
-
-
 
 #endif 	/* __ID3D12Heap_INTERFACE_DEFINED__ */
 
@@ -5075,17 +5064,6 @@ EXTERN_C const IID IID_ID3D12Resource;
 
 #endif 	/* C style interface */
 
-
-
-D3D12_RESOURCE_DESC STDMETHODCALLTYPE ID3D12Resource_GetDesc_Proxy( 
-    ID3D12Resource * This);
-
-
-void __RPC_STUB ID3D12Resource_GetDesc_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
 
 
 
@@ -5810,39 +5788,6 @@ EXTERN_C const IID IID_ID3D12DescriptorHeap;
 
 #endif 	/* C style interface */
 
-
-
-D3D12_DESCRIPTOR_HEAP_DESC STDMETHODCALLTYPE ID3D12DescriptorHeap_GetDesc_Proxy( 
-    ID3D12DescriptorHeap * This);
-
-
-void __RPC_STUB ID3D12DescriptorHeap_GetDesc_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
-
-
-D3D12_CPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart_Proxy( 
-    ID3D12DescriptorHeap * This);
-
-
-void __RPC_STUB ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
-
-
-D3D12_GPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart_Proxy( 
-    ID3D12DescriptorHeap * This);
-
-
-void __RPC_STUB ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
 
 
 
@@ -9349,17 +9294,6 @@ EXTERN_C const IID IID_ID3D12CommandQueue;
 
 
 
-D3D12_COMMAND_QUEUE_DESC STDMETHODCALLTYPE ID3D12CommandQueue_GetDesc_Proxy( 
-    ID3D12CommandQueue * This);
-
-
-void __RPC_STUB ID3D12CommandQueue_GetDesc_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
-
-
 
 #endif 	/* __ID3D12CommandQueue_INTERFACE_DEFINED__ */
 
@@ -10234,48 +10168,6 @@ EXTERN_C const IID IID_ID3D12Device;
 
 #endif 	/* C style interface */
 
-
-
-D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device_GetResourceAllocationInfo_Proxy( 
-    ID3D12Device * This,
-    /* [annotation] */ 
-    _In_  UINT visibleMask,
-    /* [annotation] */ 
-    _In_  UINT numResourceDescs,
-    /* [annotation] */ 
-    _In_reads_(numResourceDescs)  const D3D12_RESOURCE_DESC *pResourceDescs);
-
-
-void __RPC_STUB ID3D12Device_GetResourceAllocationInfo_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
-
-
-D3D12_HEAP_PROPERTIES STDMETHODCALLTYPE ID3D12Device_GetCustomHeapProperties_Proxy( 
-    ID3D12Device * This,
-    /* [annotation] */ 
-    _In_  UINT nodeMask,
-    D3D12_HEAP_TYPE heapType);
-
-
-void __RPC_STUB ID3D12Device_GetCustomHeapProperties_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
-
-
-LUID STDMETHODCALLTYPE ID3D12Device_GetAdapterLuid_Proxy( 
-    ID3D12Device * This);
-
-
-void __RPC_STUB ID3D12Device_GetAdapterLuid_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
 
 
 
@@ -12982,17 +12874,6 @@ EXTERN_C const IID IID_ID3D12ProtectedResourceSession;
 
 
 
-D3D12_PROTECTED_RESOURCE_SESSION_DESC STDMETHODCALLTYPE ID3D12ProtectedResourceSession_GetDesc_Proxy( 
-    ID3D12ProtectedResourceSession * This);
-
-
-void __RPC_STUB ID3D12ProtectedResourceSession_GetDesc_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
-
-
 
 #endif 	/* __ID3D12ProtectedResourceSession_INTERFACE_DEFINED__ */
 
@@ -13786,23 +13667,6 @@ EXTERN_C const IID IID_ID3D12Device4;
 
 
 
-D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device4_GetResourceAllocationInfo1_Proxy( 
-    ID3D12Device4 * This,
-    UINT visibleMask,
-    UINT numResourceDescs,
-    /* [annotation] */ 
-    _In_reads_(numResourceDescs)  const D3D12_RESOURCE_DESC *pResourceDescs,
-    /* [annotation] */ 
-    _Out_writes_opt_(numResourceDescs)  D3D12_RESOURCE_ALLOCATION_INFO1 *pResourceAllocationInfo1);
-
-
-void __RPC_STUB ID3D12Device4_GetResourceAllocationInfo1_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
-
-
 
 #endif 	/* __ID3D12Device4_INTERFACE_DEFINED__ */
 
@@ -14017,17 +13881,6 @@ EXTERN_C const IID IID_ID3D12SwapChainAssistant;
 
 #endif 	/* C style interface */
 
-
-
-LUID STDMETHODCALLTYPE ID3D12SwapChainAssistant_GetLUID_Proxy( 
-    ID3D12SwapChainAssistant * This);
-
-
-void __RPC_STUB ID3D12SwapChainAssistant_GetLUID_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
 
 
 
@@ -17749,17 +17602,6 @@ EXTERN_C const IID IID_ID3D12ProtectedResourceSession1;
 
 
 
-D3D12_PROTECTED_RESOURCE_SESSION_DESC1 STDMETHODCALLTYPE ID3D12ProtectedResourceSession1_GetDesc1_Proxy( 
-    ID3D12ProtectedResourceSession1 * This);
-
-
-void __RPC_STUB ID3D12ProtectedResourceSession1_GetDesc1_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
-
-
 
 #endif 	/* __ID3D12ProtectedResourceSession1_INTERFACE_DEFINED__ */
 
@@ -19634,23 +19476,6 @@ EXTERN_C const IID IID_ID3D12Device8;
 
 
 
-D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device8_GetResourceAllocationInfo2_Proxy( 
-    ID3D12Device8 * This,
-    UINT visibleMask,
-    UINT numResourceDescs,
-    /* [annotation] */ 
-    _In_reads_(numResourceDescs)  const D3D12_RESOURCE_DESC1 *pResourceDescs,
-    /* [annotation] */ 
-    _Out_writes_opt_(numResourceDescs)  D3D12_RESOURCE_ALLOCATION_INFO1 *pResourceAllocationInfo1);
-
-
-void __RPC_STUB ID3D12Device8_GetResourceAllocationInfo2_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
-
-
 
 #endif 	/* __ID3D12Device8_INTERFACE_DEFINED__ */
 
@@ -20067,17 +19892,6 @@ EXTERN_C const IID IID_ID3D12Resource2;
 
 #endif 	/* C style interface */
 
-
-
-D3D12_RESOURCE_DESC1 STDMETHODCALLTYPE ID3D12Resource2_GetDesc1_Proxy( 
-    ID3D12Resource2 * This);
-
-
-void __RPC_STUB ID3D12Resource2_GetDesc1_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
 
 
 
@@ -22702,17 +22516,6 @@ EXTERN_C const IID IID_ID3D12ShaderCacheSession;
 
 #endif 	/* C style interface */
 
-
-
-D3D12_SHADER_CACHE_SESSION_DESC STDMETHODCALLTYPE ID3D12ShaderCacheSession_GetDesc_Proxy( 
-    ID3D12ShaderCacheSession * This);
-
-
-void __RPC_STUB ID3D12ShaderCacheSession_GetDesc_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
 
 
 
@@ -26941,27 +26744,6 @@ EXTERN_C const IID IID_ID3D12Device12;
 
 
 
-D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device12_GetResourceAllocationInfo3_Proxy( 
-    ID3D12Device12 * This,
-    UINT visibleMask,
-    UINT numResourceDescs,
-    /* [annotation] */ 
-    _In_reads_(numResourceDescs)  const D3D12_RESOURCE_DESC1 *pResourceDescs,
-    /* [annotation] */ 
-    _In_opt_count_(numResourceDescs)  const UINT32 *pNumCastableFormats,
-    /* [annotation] */ 
-    _In_opt_count_(numResourceDescs)  const DXGI_FORMAT *const *ppCastableFormats,
-    /* [annotation] */ 
-    _Out_writes_opt_(numResourceDescs)  D3D12_RESOURCE_ALLOCATION_INFO1 *pResourceAllocationInfo1);
-
-
-void __RPC_STUB ID3D12Device12_GetResourceAllocationInfo3_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
-
-
 
 #endif 	/* __ID3D12Device12_INTERFACE_DEFINED__ */
 
@@ -27829,17 +27611,6 @@ EXTERN_C const IID IID_ID3D12DeviceConfiguration;
 
 #endif 	/* C style interface */
 
-
-
-D3D12_DEVICE_CONFIGURATION_DESC STDMETHODCALLTYPE ID3D12DeviceConfiguration_GetDesc_Proxy( 
-    ID3D12DeviceConfiguration * This);
-
-
-void __RPC_STUB ID3D12DeviceConfiguration_GetDesc_Stub(
-    IRpcStubBuffer *This,
-    IRpcChannelBuffer *_pRpcChannelBuffer,
-    PRPC_MESSAGE _pRpcMessage,
-    DWORD *_pdwStubPhase);
 
 
 
